@@ -149,8 +149,8 @@ let joystick= (x=100,y=100,joyscale=1,stickscale=1,callback=console.log)=> {
 
 let add2048= container=> {
   //let m= [ [0,0], [0,0] ]
-  let m= [ [0,0,0], [0,0,0], [0,0,0] ]
-  //let m= [ [0,0,0,0], [0,0,0,0], [0,0,0,0], [0,0,0,0] ]
+  //let m= [ [0,0,0], [0,0,0], [0,0,0] ]
+  let m= [ [0,0,0,0], [0,0,0,0], [0,0,0,0], [0,0,0,0] ]
   let transp= m=> m[0].map((x,i)=> m.map(y=> y[i]))
 
   let shifted= false
@@ -179,8 +179,8 @@ let add2048= container=> {
           setTimeout(e=>el1.remove(),300)
           r[i+1]=0  }}}
     //r= r.filter(e=>e).concat([0,0]).slice(0,2)
-    r= r.filter(e=>e).concat([0,0,0]).slice(0,3)
-    //r= r.filter(e=>e).concat([0,0,0,0]).slice(0,4)
+    //r= r.filter(e=>e).concat([0,0,0]).slice(0,3)
+    r= r.filter(e=>e).concat([0,0,0,0]).slice(0,4)
     if (r.join(' ')!=r0.join(' ')) shifted= true
     return r  }
   
