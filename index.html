@@ -1,322 +1,127 @@
-<html>
-  <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-YTH6D5RFG2"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="2048Sport: Move, Play, Win! A fitness game that combines light exercise with the addictive fun of 2048. Control the game using real-world movements and stay active.">
+    <meta name="keywords" content="2048, fitness game, computer vision, move to play, fitness gamification, active gaming, interactive gaming">
+    <meta name="author" content="Your Name">
+    <title>2048 SPORT | Move, Play, Win!</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to bottom, #f0f8ff, #e6e6fa);
+            color: #333;
+            text-align: center;
+        }
+        
+        header {
+            background-color: #ff6347;
+            padding: 20px;
+        }
 
-      gtag('config', 'G-YTH6D5RFG2');
-    </script>
-    <meta charset="UTF-8" />
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js"></script>
-  </head>
+        header h1 {
+            color: white;
+            font-size: 3rem;
+            margin: 0;
+        }
 
-  <body style="padding:0;margin:0;background:#000;overflow:hidden">
-    <video id="input_video" style="opacity:0;transition:all 0.2s linear;-filter:grayscale(1) contrast(1.5);transform: scale(-1,1);box-sizing: border-box;position:absolute;top:0;left:0; -width:100%;-height:100%;"></video>
-    <svg id="svg0" style="-display:none;opacity:0.05;resize:both;box-sizing: border-box;position:absolute;top:0;left:0; width:100%;height:100%;">
-      <polyline id="lLine" points="173 440,208 348,302 261,311 410,232 488,233 606" style="fill:none;stroke:#696969;stroke-width:40;stroke-linejoin:round" stroke-linecap="round" />
-      <polyline id="rLine" points="450 400,400 300,302 261,311 410,400 488,400 606" style="fill:none;stroke:#696969;stroke-width:40;stroke-linejoin:round" stroke-linecap="round" />
-      <circle id="head"  cx="300" cy="200" r="50" style="fill:#696969;"/>
-    </svg>
-    <div id="div0" style="-display:none; resize:both;box-sizing: border-box;position:absolute;top:0;left:0; width:100%;height:100%;"></div>
-  </body>
-  
-<script>
+        section {
+            padding: 50px 20px;
+        }
 
-let viewWidth=  window.innerWidth  || document.documentElement.clientWidth  || document.body.clientWidth,
-    viewHeight= window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight
-//alert(viewWidth+' '+viewHeight)
+        h2 {
+            font-size: 2rem;
+            color: #ff6347;
+        }
 
-let svg0=  document.querySelector('#svg0'),  div0=  document.querySelector('#div0'),
-    lLine= document.querySelector('#lLine'), rLine= document.querySelector('#rLine'),
-    head=  document.querySelector('#head')
+        p {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 20px auto;
+        }
 
-let l= r= [{'x':0,'y':0},,{'x':0,'y':0}], lPrev, rPrev
-let poseChanged = new Event('poseChanged')
+        .features {
+            list-style-type: none;
+            padding: 0;
+        }
 
-let randEl= arr=> arr[Math.floor(Math.random()*arr.length)]
+        .features li {
+            margin: 20px 0;
+            font-size: 1rem;
+        }
 
-let touchcount= {'Left':0, 'Right':0, 'Up':0, 'Down':0}
+        .cta-button {
+            display: inline-block;
+            background-color: #ff6347;
+            color: white;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            border-radius: 5px;
+            text-decoration: none;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
 
-let stickmanMode= ()=> {
-  //𐀪웃𖨆
-  e= document.createElement('div')
-  e.innerHTML= '𐀪'//웃𖨆'
-  e.style.position= 'absolute'
-  e.style.fontSize= '100px'
-  e.style.color= 'red'
-  e.style.right= 0
-  e.style.top= '-70px'
-  e.style.cursor= 'pointer'
-  e.style.userSelect= 'none'
-  div0.append(e)
-  e.onclick= ev=> {
-    if(ev.target.style.color == 'red'){
-      input_video.style.opacity= 0
-      svg0.style.opacity= 1
-      ev.target.style.color= 'blue'
-      //if (ev.ctrlKey) camera.stop()
-    } else {
-      input_video.style.opacity= 1
-      svg0.style.opacity= 0
-      ev.target.style.color= 'red'
-      //if (ev.ctrlKey) camera.start()
-    }
-    
-  }
-}
-stickmanMode()
+        .cta-button:hover {
+            background-color: #e55337;
+        }
 
+        footer {
+            background-color: #333;
+            color: white;
+            padding: 20px 0;
+            margin-top: 50px;
+        }
 
-let warmUp= ()=> {
-  e= document.createElement('div')
-  e.innerHTML= 'WARM UP!'
-  e.style.position= 'absolute'
-  e.style.fontSize= '100px'
-  e.style.color= 'red'
-  e.style.background= '#000'
-  e.style.width= e.style.height= '100%'
-  e.style.lineHeight= viewHeight+'px'
-  e.style.textAlign= 'center'
-  //e.style.right= '10%'
-  //e.style.top= '0%'
-  e.style.fontFamily= 'arial black, sans-serif'
-  e.style.userSelect= 'none'
-  div0.append(e)
-  e.style.zIndex= 100
-  e.style.transition= 'all 3s'
-  //e.offsetWidth
-  e.style.opacity= 0.7
-  return e
-}
-//let warmUpLabel= warmUp()
+        footer p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
 
-let joystick= (x=100,y=100,joyscale=1,stickscale=1,callback=console.log)=> {
-  e= document.createElement('div')
-  e.style.position= 'absolute'
-  e.style.width= e.style.height= '100px'
-  //e.style.transform= 'rotate(45deg)'
-  e.style.left= x-50+'px'
-  e.style.top= y-50+'px'
-  e.style.scale= joyscale
-  e.style.border= '10px solid gray'
-  e.style.borderColor= 'red green white blue'
-  e.style.borderRadius= '20px'
-  e.style.boxSizing= 'border-box'
-  div0.append(e)
-  
-  s= document.createElement('div')
-  s.style.position= 'absolute'
-  s.style.width= s.style.height= s.style.borderRadius= '40px'
-  s.style.left= x-20+'px'
-  s.style.top= y-20+'px'
-  s.style.scale= stickscale
-  s.style.background= '#f55'
-  div0.append(s)
-  
-  let timeout= false
-  
-  let moveStick= (x, y, smooth=false)=> {
-    if (smooth) {
-      s.style.transition= 'all 0.3s'
-      s.offsetWidth
-      setTimeout(()=>s.style.transition= '', 300) }
-    s.style.translate= `${x+20}px ${y+20}px`
-    let direction= (x>30*joyscale)  ? 'Right' :
-                   (x<-30*joyscale) ? 'Left'  :
-                   (y>30*joyscale)  ? 'Down'  :
-                   (y<-30*joyscale) ? 'Up'    : ''
-    if (direction && !timeout) {
-      //e.style.borderColor= randColor()
-      callback(direction)
-      timeout= true
-      setTimeout(()=>timeout=false,1000)
-    }
-  }
-  
-  let moving= false
-  
-  onPoseChanged= ()=> {
-    if (Math.abs(l[0].x-r[0].x)<100 && Math.abs(l[0].y-r[0].y)<100 && 
-        Math.abs(l[0].x-x)<100      && Math.abs(l[0].y-y)<100)      moving= true
-    if (Math.abs(l[0].x-r[0].x)>200 || Math.abs(l[0].y-r[0].y)>200) {
-      moving= false 
-      moveStick(-20, -20, true)
-    }
-    //if (getFirstCollision([lFist], s) && getFirstCollision([rFist], s)) moveStick(l[0].x-x, l[0].y-y)
-    if (moving) moveStick((l[0].x+r[0].x)/2-20-x, (l[0].y+r[0].y)/2-20-y)
-  }
-    
-  svg0.addEventListener('poseChanged', onPoseChanged)
-  //document.onmousemove= e=> moveStick(e.clientX-x, e.clientY-y)
-  
-  return {scaleup: ds=>e.style.scale= joyscale*ds>Math.min(viewWidth-viewHeight,viewHeight)/100 ? joyscale : joyscale*=ds}
-}
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2.5rem;
+            }
 
-let add2048= container=> {
-  //let m= [ [0,0], [0,0] ]
-  //let m= [ [0,0,0], [0,0,0], [0,0,0] ]
-  let m= [ [0,0,0,0], [0,0,0,0], [0,0,0,0], [0,0,0,0] ]
-  let transp= m=> m[0].map((x,i)=> m.map(y=> y[i]))
+            h2 {
+                font-size: 1.8rem;
+            }
 
-  let shifted= false
+            p {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>2048 SPORT coming soon</h1>
+    </header>
 
-  let checkGameOver= m=> {
-    let allFilled= r=> r.length == r.filter(c=>c).length
-    let checkDoubles= r=> {
-      for(let i=1; i<r.length; i++){
-        if (r[i].innerHTML==r[i-1].innerHTML) return false }
-      return true }
-    if (!allFilled(m.map(allFilled))) return false
-    if (!allFilled(m.map(checkDoubles))) return false
-    if (!allFilled(transp(m).map(checkDoubles))) return false
-    return true }
+    <section>
+        <h2>Fitness gamification or game fitnetization?</h2>
+        <p>Hi there! You’ll soon see the 2048 SPORT game here. It’s an active alternative to the classic 2048 game, using motion capture technology. The GIF below should give you a good idea of the gameplay. I’m almost finished with development and just need a few more days to finalize and deploy it. It’s hard not to play too much while testing :-)</p>
+      
+      <img style="max-width:90%" src="2048sport.gif">
 
-  let shiftRow= r0=> {
-    r= r0.filter(e=>e)
-    for (let i=0; i<r.length-1; i++) {
-      let el1= r[i+1], el2= r[i]
-      if (el2 && el1){
-        if (el2.innerHTML==el1.innerHTML) {
-          el2.innerHTML*=2
-          el2.style.color= {'4':'36498f','8':'2d7c9d', '16':'red'}[el2.innerHTML]
-          el1.style.color= el1.style.background= 'rgba(0,0,0,0)'
-          setTimeout(e=>el1.style.translate=el2.style.translate,0)
-          setTimeout(e=>el1.remove(),300)
-          r[i+1]=0  }}}
-    //r= r.filter(e=>e).concat([0,0]).slice(0,2)
-    //r= r.filter(e=>e).concat([0,0,0]).slice(0,3)
-    r= r.filter(e=>e).concat([0,0,0,0]).slice(0,4)
-    if (r.join(' ')!=r0.join(' ')) shifted= true
-    return r  }
-  
-  let shiftCount=0
-  let shiftField= dir=> {
-    shifted= false
-    if (touchcount.hasOwnProperty(dir)) {touchcount[dir]++ } else return
-    if (dir=="Left")  m= m.map(r=> shiftRow(r))
-    if (dir=="Right") m= m.map(r=> shiftRow(r.reverse()).reverse())
-    if (dir=="Up")    m= transp(transp(m).map(r=> shiftRow(r)))
-    if (dir=="Down")  m= transp(transp(m).map(r=> shiftRow(r.reverse()))).reverse()
+      <p>What I like about it:</p>
+      
+        <ul class="features">
+            <li>No controllers needed — just you and your body</li>
+            <li>Light fitness integrated into addictive gameplay</li>
+            <li>Simple movements suitable for all ages</li>
+        </ul>
 
-    shiftCount++
-    if (shiftCount % 10 == 0) jstk.scaleup(1.1)
-    if (shiftCount % 20 == 0) {m= transp(m).map(r=>r.reverse());gamebackground.style.transform= `rotate(${rot+=90}deg)`}
-    if (shifted) newTile()
-    m.forEach((r,i)=>r.forEach((c,j)=>c?c.style.translate=`${j*170}px ${i*170}px`:0))
-    //console.log(m.map(r=>r.map(c=>c?c.innerHTML:0).join(' ')).join('\n-'))  
-    setTimeout(e=>{if(checkGameOver(m)) alert(JSON.stringify(touchcount))},500)
-  }
+      <p>In the meantime, you can subscribe to the YouTube channel. It’s empty for now, haha, but I promise to announce the release and post a video about the project soon. Hope you’ll enjoy it!</p>
+      
+        <a href="#" class="cta-button">YouTube channel <br> (will be ready today)</a>
+    </section>
 
-  let emptyCells= m=> [].concat(...m.map((r,i)=>r.map((c,j)=>c?0:[i,j]))).filter(e=>e)
-
-  let gamecontainer= document.createElement('div')
-  gamecontainer.style.position= 'absolute'
-  gamecontainer.style.scale= viewHeight/680
-  container.append(gamecontainer)
-
-  let gamebackground= document.createElement('div')
-  gamebackground.style.position= 'absolute'
-  gamebackground.innerHTML= '<div style="display: inline-block;background:grey; width:160px; height:160px;margin:5px"></div>'.repeat(16)
-  gamebackground.style.transition= 'all .5s ease-out'
-  gamebackground.style.transformOrigin= '340px 340px'
-  gamebackground.style.width= gamebackground.style.height= '680px'
-  gamebackground.style.background= '#333'
-  
-  gamecontainer.append(gamebackground)
-  let rot= 0
-  document.addEventListener('click', e=>gamebackground.style.transform= `rotate(${rot+=90}deg)`)
-  document.addEventListener('click', e=>{m= transp(m).map(r=>r.reverse());m.forEach((r,i)=>r.forEach((c,j)=>c?c.style.translate=`${j*170}px ${i*170}px`:0))})
-
-  let newTile= ()=> {
-    //console.log (m.map(r=>r.find(e=>e.innerHTML==2)).filter(e=>e).length>0)
-    let f= (r,c)=> m[r] ? m[r][c]?.innerHTML : undefined
-    let getAdjacentCells= (r,c)=> [ f(r-1,c), f(r,c-1), f(r+1,c), f(r,c+1) ]
-    //randEl([...new Set(getAdjacentCells(emptyCells[0]))].filter(e=> e==2 || e==4))
-    let values= [...new Set(getAdjacentCells(...emptyCells(m)[0]))].filter(e=> e==2 || e==4)
-    if (emptyCells(m).length==1) console.log(values)
-    let val= (emptyCells(m).length==1 && values.length) ? randEl(values) : randEl([2,4]);
-    //let val= emptyCells(m).length==1 ? m.map(r=>r.find(e=>e.innerHTML==2)).filter(e=>e).length>0 ? 2 : 4 : Math.random()<0.5 ? 2 : 4;
-    [r,c]= randEl(emptyCells(m))
-    
-    m[r][c]= document.createElement('div')
-    //m[r][c].innerHTML= Math.random()<0.5 ? 2 : 4
-    m[r][c].innerHTML= val
-    m[r][c].style.position= 'absolute'
-    m[r][c].style.display= 'inline-block'
-    m[r][c].style.width= m[r][c].style.height= m[r][c].style.lineHeight= '160px'
-    m[r][c].style.fontSize= '58px'
-    m[r][c].style.fontFamily= 'arial black, sans-serif'
-    m[r][c].style.wordWrap= 'break-word'
-    m[r][c].style.textAlign= 'center'
-    m[r][c].style.background= '#ccc'
-    m[r][c].style.margin= '5px'
-    m[r][c].style.translate=`${c*170}px ${r*170}px`
-    m[r][c].style.opacity= 0
-    m[r][c].style.transition= 'translate 0.3s, background 0.3s, opacity 0.3s ease 0.3s'
-    gamecontainer.append(m[r][c])
-    m[r][c].offsetWidth
-    m[r][c].style.opacity= 1
-  }
-  newTile()
-
-
-  
-  document.onkeydown= ev=> shiftField(ev.key.slice(5,10))  
-  let jstk= joystick(viewHeight+(viewWidth-viewHeight)/2,viewHeight/2,4,2,shiftField)
-  console.log('viewWidth,viewHeight,viewHeight+(viewWidth-viewHeight)/2',viewWidth,viewHeight,viewHeight+(viewWidth-viewHeight)/2)
-}
-add2048(div0)
-
-const videoElement = document.querySelector('#input_video');
-function onResults(result) {
-  if (!result.poseLandmarks) return;
-  //input_video.style.width= viewWidth+'px'
-  input_video.style.height= viewHeight+'px'
-  input_video.style.opacity= 1
-  //warmUpLabel.style.opacity= 0
-  //alert(input_video.clientWidth+' '+input_video.clientHeight)
-  // PoseNet points https://github.com/tensorflow/tfjs-models/blob/master/pose-detection/README.md#blazepose-keypoints-used-in-mediapipe-blazepose
-  lPrev= l; rPrev= r
-  r= [17,13,11,23,25,29,31].map(e=> e={'x':result.poseLandmarks[e].x*input_video.clientWidth, 'y':result.poseLandmarks[e].y*viewHeight});
-  l= [20,14,12,24,26,30,32].map(e=> e={'x':result.poseLandmarks[e].x*input_video.clientWidth, 'y':result.poseLandmarks[e].y*viewHeight});
-  let dx= -(l[4].x+r[4].x)/2 + viewHeight+(viewWidth-viewHeight)/2
-  r= r.map(e=>e={x:e.x+dx,y:e.y})
-  l= l.map(e=>e={x:e.x+dx,y:e.y})
-  
-  lLine.setAttribute('points', l.map(e=>(e.x)+' '+(e.y)).join(','));
-  rLine.setAttribute('points', r.map(e=>(e.x)+' '+(e.y)).join(','));
-  head.setAttribute('cx',result.poseLandmarks[0].x*input_video.clientWidth+dx);
-  head.setAttribute('cy',result.poseLandmarks[0].y*viewHeight);  
-  head.setAttribute('r', (( (r[2].x-l[4].x)**2 + (r[2].y-l[4].y)**2 )**0.5) *0.15);
-  
-  input_video.style.translate= `${dx}px 0px`
-  
-  svg0.dispatchEvent(poseChanged);
-}
-
-const pose= new Pose({locateFile: file=> 'https://cdn.jsdelivr.net/npm/@mediapipe/pose/'+file})
-pose.setOptions({
-  modelComplexity: 0,
-  smoothLandmarks: true,
-  enableSegmentation: false,
-  smoothSegmentation: false,
-  selfieMode: true,
-  minDetectionConfidence: 0.5,
-  minTrackingConfidence: 0.5
-});
-pose.onResults(onResults);
-
-const camera = new Camera(videoElement, {
-  onFrame: async () => await pose.send({ image: videoElement }), 
-  width: 99999, height: 99999//viewHeight/viewWidth*1280 
-  });
-camera.start();
-console.log(camera)
-//alert(input_video.clientWidth+' '+input_video.clientHeight)
-//document.onclick= e=>alert(input_video.clientWidth+' '+input_video.clientHeight)
-</script>
+    <footer>
+        <p>© 2024 2048Sport. All rights reserved.</p>
+    </footer>
+</body>
 </html>
