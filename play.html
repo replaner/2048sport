@@ -189,8 +189,8 @@ let add2048= container=> {
     return true }
     
   let gameOver= ()=> {
-    touchcount.duration= timeCount.getDurationMin()
-    alert(JSON.stringify(touchcount)) }
+    gamestat.duration= timeCount.getDurationMin()
+    alert(JSON.stringify(gamestat)) }
 
   let shiftRow= r0=> {
     r= r0.filter(e=>e)
