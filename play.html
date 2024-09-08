@@ -15,7 +15,7 @@
   </head>
 
   <body style="padding:0;margin:0;background:#000;overflow:hidden">
-    <video id="input_video" style="opacity:0;transition:all 0.2s linear;-filter:grayscale(1) contrast(1.5);transform: scale(-1,1);box-sizing: border-box;position:absolute;top:0;left:0; -width:100%;-height:100%;"></video>
+    <video id="input_video" style="opacity:1;transition:all 0.2s linear;-filter:grayscale(1) contrast(1.5);transform: scale(-1,1);box-sizing: border-box;position:absolute;top:0;left:0; -width:100%;-height:100%;"></video>
     <svg id="svg0" style="-display:none;opacity:0.05;resize:both;box-sizing: border-box;position:absolute;top:0;left:0; width:100%;height:100%;">
       <polyline id="lLine" points="173 440,208 348,302 261,311 410,232 488,233 606" style="fill:none;stroke:#696969;stroke-width:40;stroke-linejoin:round" stroke-linecap="round" />
       <polyline id="rLine" points="450 400,400 300,302 261,311 410,400 488,400 606" style="fill:none;stroke:#696969;stroke-width:40;stroke-linejoin:round" stroke-linecap="round" />
@@ -29,6 +29,8 @@
 let viewWidth=  window.innerWidth  || document.documentElement.clientWidth  || document.body.clientWidth,
     viewHeight= window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight
 //alert(viewWidth+' '+viewHeight)
+
+let videoElement = document.querySelector('#input_video')
 
 let svg0=  document.querySelector('#svg0'),  div0=  document.querySelector('#div0'),
     lLine= document.querySelector('#lLine'), rLine= document.querySelector('#rLine'),
@@ -55,15 +57,13 @@ let stickmanMode= ()=> {
   div0.append(e)
   e.onclick= ev=> {
     if(ev.target.style.color == 'red'){
-      input_video.style.opacity= 0
+      videoElement.style.opacity= 0
       svg0.style.opacity= 1
       ev.target.style.color= 'blue'
-      //if (ev.ctrlKey) camera.stop()
     } else {
-      input_video.style.opacity= 1
+      videoElement.style.opacity= 1
       svg0.style.opacity= 0
       ev.target.style.color= 'red'
-      //if (ev.ctrlKey) camera.start()
     }
     
   }
@@ -84,15 +84,16 @@ let timeCount= {
 window.addEventListener('focus', timeCount.start)
 window.addEventListener('blur', timeCount.pause)
 
-let warmUp= ()=> {
+let loading= ()=> {
   e= document.createElement('div')
-  e.innerHTML= 'WARM UP!'
+  e.innerHTML= 'LOADING<br><img src="loading.gif">'
   e.style.position= 'absolute'
   e.style.fontSize= '100px'
-  e.style.color= 'red'
+  e.style.color= 'white'
   e.style.background= '#000'
   e.style.width= e.style.height= '100%'
-  e.style.lineHeight= viewHeight+'px'
+  e.style.padding= '10% 0'
+  //e.style.lineHeight= viewHeight+'px'
   e.style.textAlign= 'center'
   //e.style.right= '10%'
   //e.style.top= '0%'
@@ -100,12 +101,13 @@ let warmUp= ()=> {
   e.style.userSelect= 'none'
   div0.append(e)
   e.style.zIndex= 100
-  e.style.transition= 'all 3s'
-  //e.offsetWidth
-  e.style.opacity= 0.7
+  e.style.transition= 'all 0.5s'
+  e.offsetWidth
+  let ee= e
+  svg0.addEventListener('poseChanged',()=>{ee.style.opacity=0;setTimeout(()=>ee.remove(),500)},{once:true})
   return e
 }
-//let warmUpLabel= warmUp()
+loading()
 
 let joystick= (x=100,y=100,joyscale=1,stickscale=1,callback=console.log)=> {
   e= document.createElement('div')
@@ -189,8 +191,34 @@ let add2048= container=> {
     return true }
     
   let gameOver= ()=> {
-    gamestat.duration= timeCount.getDurationMin()
-    alert(JSON.stringify(gamestat)) }
+    gamestat.Duration= timeCount.getDurationMin()
+    camera.stop()
+    
+    let container= document.createElement('div')
+    container.style= 'position:absolute; right:0; top:0; height:100%; background:#555;text-align:center;'
+    container.style.width= viewWidth-viewHeight+'px'
+    container.innerHTML= '<img src="gameover.png" style="height:30%;margin:5%"><br>'
+    document.body.append(container)
+
+    let circle= (color,dir,val)=> {
+      let el= document.createElement('div')
+      //el.style.background= `no-repeat url("https://2048sport.com/icon_left.png")`
+      el.innerHTML= (dir ? `<img src="https://2048sport.com/icon_${dir}.png" style="height:30%; margin:1vw;">` : '') + '<br>'+val
+      el.style= 'display:inline-block; width:10vw; height:10vw; margin:0 1vw; border-radius:100%; text-align:center; font-size:3vw; line-height:3vw; font-family: Arial, Helvetica, sans-serif;'
+      el.style.color= 'white'
+      el.style.border= '1vw solid ' + color
+      container.append(el)
+    }
+    circle('blue','left',gamestat.Left)
+    circle('white','',gamestat.Duration+'<br>min')
+    circle('red','right',gamestat.Right)
+    circle('yellow','up',gamestat.Up)
+    circle('green','down',gamestat.Down)
+    //alert(JSON.stringify(gamestat)) 
+    
+  }
+  //document.addEventListener('click', gameOver)
+    
 
   let shiftRow= r0=> {
     r= r0.filter(e=>e)
@@ -288,13 +316,11 @@ let add2048= container=> {
 }
 add2048(div0)
 
-const videoElement = document.querySelector('#input_video');
 function onResults(result) {
   if (!result.poseLandmarks) return;
   //input_video.style.width= viewWidth+'px'
   input_video.style.height= viewHeight+'px'
-  input_video.style.opacity= 1
-  //warmUpLabel.style.opacity= 0
+  //input_video.style.opacity= 1
   //alert(input_video.clientWidth+' '+input_video.clientHeight)
   // PoseNet points https://github.com/tensorflow/tfjs-models/blob/master/pose-detection/README.md#blazepose-keypoints-used-in-mediapipe-blazepose
   lPrev= l; rPrev= r
