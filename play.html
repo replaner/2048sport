@@ -221,7 +221,9 @@ let add2048= container=> {
     //circle('yellow','up',gamestat.Up)
     //circle('green','down',gamestat.Down)
     //alert(JSON.stringify(gamestat)) 
-    container.innerHTML= `<div style="padding-top:200px;font-family:arial black, sans-serif;">  
+    let maxVal= m=> Math.max(...[...document.querySelectorAll('div[data-val]')].map(e=>e.dataset.val))
+    container.innerHTML= `<div style="-padding-top:200px;font-family:arial black, sans-serif; font-size:64px; color:#333">
+    <p>2048sport.com</p>    
 <div style="display: inline-block; width:40%; height:350px; font-size:32px; border-radius:50px; margin-right:-100px; background:#333; color:#888; padding-left:30px; box-sizing: border-box; vertical-align:top;text-align:left">
   <p><img style="height:40px; margin:-10px 15px" src="https://2048sport.com/icon_up.png">${gamestat.Up}<br>
   <p><img style="height:40px; margin:-10px 10px" src="https://2048sport.com/icon_right.png">${gamestat.Right}</p> 
@@ -229,12 +231,12 @@ let add2048= container=> {
   <p><img style="height:40px; margin:-10px 15px" src="https://2048sport.com/icon_down.png">${gamestat.Down}<br>
 </div>
 <div style="display: inline-block; width:40%; height:350px; border-radius:50px;  background: #f65e3b; text-align:center; padding:30px; color:white; font-size:52px; box-sizing: border-box;">
-  👑<br>2048<p style="font-size:30px; ">${gamestat.Duration}<br>min</p>
+  👑<br>${maxVal(m)}<p style="font-size:30px; ">${gamestat.Duration}<br>min</p>
 </div>
 </div>`
     
   }
-  //document.addEventListener('click', gameOver)
+  document.addEventListener('click', gameOver)
     
   
   let shifted= false
