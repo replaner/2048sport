@@ -184,13 +184,12 @@ let add2048= container=> {
   let m= [ [0,0,0,0], [0,0,0,0], [0,0,0,0], [0,0,0,0] ]
   let transp= m=> m[0].map((x,i)=> m.map(y=> y[i]))
 
-  let shifted= false
 
   let checkGameOver= m=> {
     let allFilled= r=> r.length == r.filter(c=>c).length
     let checkDoubles= r=> {
       for(let i=1; i<r.length; i++){
-        if (r[i].innerHTML==r[i-1].innerHTML) return false }
+        if (r[i].dataset.val==r[i-1].dataset.val) return false }
       return true }
     if (!allFilled(m.map(allFilled))) return false
     if (!allFilled(m.map(checkDoubles))) return false
@@ -226,15 +225,15 @@ let add2048= container=> {
   }
   //document.addEventListener('click', gameOver)
     
-
+  
+  let shifted= false
   let shiftRow= r0=> {
     r= r0.filter(e=>e)
     for (let i=0; i<r.length-1; i++) {
       let el1= r[i+1], el2= r[i]
       if (el2 && el1){
-        if (el2.innerHTML==el1.innerHTML) {
-          el2.innerHTML*=2
-          el2.style.color= {'4':'36498f','8':'2d7c9d', '16':'red'}[el2.innerHTML]
+        if (el2.dataset.val==el1.dataset.val) {
+          el2.innerHTML= tileContent(el2.dataset.val*=2)
           el1.style.color= el1.style.background= 'rgba(0,0,0,0)'
           setTimeout(e=>el1.style.translate=el2.style.translate,0)
           setTimeout(e=>el1.remove(),300)
@@ -259,7 +258,7 @@ let add2048= container=> {
     if (shiftCount % 20 == 0) {m= transp(m).map(r=>r.reverse());gamebackground.style.transform= `rotate(${rot+=90}deg)`}
     if (shifted) newTile()
     m.forEach((r,i)=>r.forEach((c,j)=>c?c.style.translate=`${j*170}px ${i*170}px`:0))
-    //console.log(m.map(r=>r.map(c=>c?c.innerHTML:0).join(' ')).join('\n-'))  
+    //console.log(m.map(r=>r.map(c=>c?c.dataset.val:0).join(' ')).join('\n-'))  
     setTimeout(e=>{if(checkGameOver(m)) gameOver()},500)
   }
 
@@ -283,9 +282,15 @@ let add2048= container=> {
   document.addEventListener('click', e=>gamebackground.style.transform= `rotate(${rot+=90}deg)`)
   document.addEventListener('click', e=>{m= transp(m).map(r=>r.reverse());m.forEach((r,i)=>r.forEach((c,j)=>c?c.style.translate=`${j*170}px ${i*170}px`:0))})
 
+  let tileContent= val=> {
+    let color= {2:'776e65',4:'776e65'}[val] || 'f9f6f2'
+    let bg= {2:'eee4da',4:'ede0c8',8:'f2b179',16:'f59563',32:'f67c60',64:'f65e3b'}[val] || 'edcf73'
+    //return '<img src="gameover.png" style="width:100%">'
+    return `<div style="color:#${color}; background:#${bg}; width:100%; height:100%; text-align:center; font-size:58px; font-family:arial black, sans-serif;word-wrap:break-word;">${val}</div>` }
+
   let newTile= ()=> {
     //console.log (m.map(r=>r.find(e=>e.innerHTML==2)).filter(e=>e).length>0)
-    let f= (r,c)=> m[r] ? m[r][c]?.innerHTML : undefined
+    let f= (r,c)=> m[r] ? m[r][c] ? m[r][c].dataset.val : undefined : undefined
     let getAdjacentCells= (r,c)=> [ f(r-1,c), f(r,c-1), f(r+1,c), f(r,c+1) ]
     //randEl([...new Set(getAdjacentCells(emptyCells[0]))].filter(e=> e==2 || e==4))
     let values= [...new Set(getAdjacentCells(...emptyCells(m)[0]))].filter(e=> e==2 || e==4)
@@ -296,15 +301,13 @@ let add2048= container=> {
     
     m[r][c]= document.createElement('div')
     //m[r][c].innerHTML= Math.random()<0.5 ? 2 : 4
-    m[r][c].innerHTML= val
+    m[r][c].dataset.val= val
+    m[r][c].innerHTML= tileContent(val)
     m[r][c].style.position= 'absolute'
     m[r][c].style.display= 'inline-block'
     m[r][c].style.width= m[r][c].style.height= m[r][c].style.lineHeight= '160px'
-    m[r][c].style.fontSize= '58px'
-    m[r][c].style.fontFamily= 'arial black, sans-serif'
-    m[r][c].style.wordWrap= 'break-word'
-    m[r][c].style.textAlign= 'center'
-    m[r][c].style.background= '#ccc'
+    //m[r][c].style.textAlign= 'center'
+    //m[r][c].style.background= '#ccc'
     m[r][c].style.margin= '5px'
     m[r][c].style.translate=`${c*170}px ${r*170}px`
     m[r][c].style.opacity= 0
