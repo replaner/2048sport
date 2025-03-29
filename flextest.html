@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Non-Squashing Flexbox</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html, body {
+        height:100%;
+        -container-type:size;
+      }
+      .background {
+        display: flex;
+        -flex-direction: column; 
+        justify-content: center;
+        align-content: center;
+        align-items: stretch;      
+        min-height: 100%;
+        background: linear-gradient(45deg, #f7797d, #fbd786, #c6ffdd);
+      }
+      .gameel {
+        /*display:flex;
+        flex-direction: column; 
+        -justify-content: center;
+        align-items: center; */
+        overflow: auto; /* Enables scrolling */
+        display: grid;
+        place-items: center; 
+        align-content: space-evenly;
+        background: linear-gradient(45deg, #7986f7, #06cc52, #ffc6cf);
+        width: 100vw;
+        -aspect-ratio: 2 / 3;
+        max-width: 55cqh;
+        container-type: inline-size;
+        -min-height: 90vh;
+        -margin: 0 auto;
+        font-family: Trebuchet MS, sans-serif
+      }
+      .ratio2x3 {
+        background:#eee; 
+        width:100%; 
+        aspect-ratio: 8 / 14; 
+        -margin:1%;
+        font-size: 4cqw
+      }
+      .wordbox {
+        background:#eee;
+        width:98%;
+        margin:0%;
+        border-radius: 2cqw;
+        display:flex;
+        -flex-direction: column;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 1em;
+        padding:1em;
+        font-size: 3cqw;
+      }
+      .wordbubble {
+        background: #ffc6cf;
+        padding:1em;
+        border-radius: 1em;
+        font-size: 3cqw;
+      }
+      .wordbox-title {
+        width:100%;
+        background: #fbd786;
+        text-align: center;
+        padding:1em;
+        font-size: 4cqw
+      }
+    </style>
+</head>
+<body>
+    <div class="background">
+      <div class="gameel">
+        <div class="ratio2x3">HELLO WORLD</div>
+         <div class="wordbox">
+          <div class="wordbox-title">WORDS</div>
+          <div class="wordbubble">word</div>
+          <div class="wordbubble">reload</div>
+          <div class="wordbubble">word</div>
+          <div class="wordbubble">crossword</div>
+          <div class="wordbubble">word</div>
+          <div class="wordbubble">background</div>
+          <div class="wordbubble">wwidthord</div>
+          <div class="wordbubble">oncontextmenu</div>
+         </div>
+      </div>
+    </div>
+</body>
+<script>
+  document.body.style.textSizeAdjust='none'
+  //setInterval(() => location.reload(), 1000);
+  document.onclick = e=> {
+    if('gameel background'.includes(e.target.className)) eval(prompt('eval'))
+    else e.target.parentElement.append(e.target.cloneNode(true)) }
+
+  document.oncontextmenu = e=> {
+    e.preventDefault()
+    console.log(e.target.className)
+    if('gameel background'.includes(e.target.className)) alert((({width,height})=>height/width)(document.querySelector('.gameel').getBoundingClientRect()))//location.reload()
+    else e.target.remove()
+  }
+</script>
+</html>
