@@ -75,14 +75,51 @@
         padding:1em;
         font-size: 4cqw
       }
+
+      .grid-container {
+          position: relative;
+          pointer-events: none;
+          display: grid;
+          grid-template-columns: repeat(9, 2fr);
+          width: 100%;
+      }
+      .svg-overlay {
+          position: absolute;
+          pointer-events: all;
+          -top:0;
+          z-index: 0;
+      }
+      .grid-item {
+          z-index: 1;
+          background: rgba(92, 176, 255,.5);
+          border: 1px solid white;
+          aspect-ratio: 1;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+      }
+
     </style>
 </head>
 <body>
     <div class="background">
       <div class="gameel">
+
+        <div class="grid-container">
+          <svg onpointerdown="console.log(event.clientX,event.clientY)" class="svg-overlay" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 120" preserveAspectRatio="none">
+              <line x1="5" y1="5" x2="85" y2="85" stroke-linecap="round" stroke="red" stroke-width="8"/>
+          </svg>       
+          <!-- 9 x 12 = 108 grid items -->
+          <script>
+              for (let i = 0; i < 108; i++) {
+                  document.write('<div class="grid-item">'+i+'</div>');
+              }
+          </script>
+        </div>
+
         <div class="fixratio" style="aspect-ratio:55/25;">HELLO WORLD</div>
-        <div class="fixratio" style="aspect-ratio:55/75;">HELLO WORLD</div>
-         <!-- <div class="wordbox">
+        <!-- <div class="fixratio" style="aspect-ratio:55/75;">HELLO WORLD</div> -->
+         <div class="wordbox">
           <div class="wordbox-title">WORDS</div>
           <div class="wordbubble">word</div>
           <div class="wordbubble">reload</div>
@@ -92,7 +129,7 @@
           <div class="wordbubble">background</div>
           <div class="wordbubble">wwidthord</div>
           <div class="wordbubble">oncontextmenu</div>
-         </div> -->
+         </div>
       </div>
     </div>
 </body>
@@ -106,7 +143,7 @@
   document.oncontextmenu = e=> {
     e.preventDefault()
     console.log(e.target.className)
-    if('gameel background'.includes(e.target.className)) alert((({width,height})=>height/width)(document.querySelector('.gameel').getBoundingClientRect()))//location.reload()
+    if('gameel background'.includes(e.target.className)) location.reload()//alert((({width,height})=>height/width)(document.querySelector('.gameel').getBoundingClientRect()))//location.reload()//
     else e.target.remove()
   }
 </script>
