@@ -86,12 +86,13 @@
           background: rgba(92, 176, 255,.5);
       }
       .svg-overlay {
-          position: absolute;
+          -position: absolute;
           pointer-events: all;
-          z-index: 0;
+          width:100%;
+          -z-index: 0;
       }
       .grid-item {
-          z-index: 1;
+          -z-index: 1;
           -border: 1px solid white;
           aspect-ratio: 1;
           display: flex;
@@ -105,18 +106,18 @@
     <div class="background">
       <div class="gameel">
 
-        <div class="grid-container">
+        <!-- <div class="grid-container"> -->
           <svg onpointerdown="alert_coords(event)" class="svg-overlay" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 120" preserveAspectRatio="none">
             <line x1="5" y1="5" x2="85" y2="85" stroke-linecap="round" stroke="red" stroke-width="7"/>
             <line x1="15" y1="5" x2="85" y2="75" stroke-linecap="round" stroke="green" stroke-width="7"/>
           </svg>       
           <!-- 9 x 12 = 108 grid items -->
-          <script>
+          <!-- <script>
               for (let i = 0; i < 108; i++) {
                   document.write('<div class="grid-item">'+i+'</div>');
               }
-          </script>
-        </div>
+          </script> -->
+        <!-- </div> -->
 
         <!-- <div class="fixratio" style="aspect-ratio:55/25;">HELLO WORLD</div> -->
         <!-- <div class="fixratio" style="aspect-ratio:55/75;">HELLO WORLD</div> -->
@@ -134,8 +135,29 @@
       </div>
     </div>
 </body>
+
 <script>
   var svg = document.querySelector('svg')
+
+  for (let row = 0; row < 12; row++) {
+      for (let col = 0; col < 9; col++) {
+          let x = col*10 + 5; // Centering within each grid cell
+          let y = row*10 + 5;
+
+          let textElement = document.createElementNS("http://www.w3.org/2000/svg", "text");
+          textElement.setAttribute("x", x);
+          textElement.setAttribute("y", y);
+          textElement.setAttribute("font-size", "5");
+          textElement.setAttribute("text-anchor", "middle");
+          textElement.setAttribute("alignment-baseline", "middle");
+          textElement.setAttribute("font-family", "Trebuchet MS, sans-serif");
+          textElement.textContent = row * 9 + col + 1;
+
+          svg.appendChild(textElement);
+      }
+  }
+</script>
+<script>
   var pt = svg.createSVGPoint();  // Created once for document
 
   function alert_coords(evt) {
