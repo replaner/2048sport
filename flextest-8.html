@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVG Digits Grid</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100vw;
+            height: 100vh;
+        }
+        .svg-overlay {
+            width: min(100vw, calc(100vh * 9 / 12));
+            height: min(100vh, calc(100vw * 12 / 9));
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <svg class="svg-overlay" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 9 12" preserveAspectRatio="none" id="svgGrid"></svg>
+    </div>
+
+    <script>
+        const svg = document.getElementById("svgGrid");
+
+        for (let row = 0; row < 12; row++) {
+            for (let col = 0; col < 9; col++) {
+                let x = col + 0.5; // Centering within each grid cell
+                let y = row + 0.75;
+
+                let textElement = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                textElement.setAttribute("x", x);
+                textElement.setAttribute("y", y);
+                textElement.setAttribute("font-size", "0.8");
+                textElement.setAttribute("text-anchor", "middle");
+                textElement.setAttribute("alignment-baseline", "middle");
+                textElement.setAttribute("font-family", "Trebuchet MS, sans-serif");
+                textElement.textContent = row * 9 + col + 1;
+
+                svg.appendChild(textElement);
+            }
+        }
+    </script>
+</body>
+</html>
