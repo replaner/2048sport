@@ -82,17 +82,17 @@
           display: grid;
           grid-template-columns: repeat(9, 2fr);
           width: 100%;
+          border-radius: 3vh;
+          background: rgba(92, 176, 255,.5);
       }
       .svg-overlay {
           position: absolute;
           pointer-events: all;
-          -top:0;
           z-index: 0;
       }
       .grid-item {
           z-index: 1;
-          background: rgba(92, 176, 255,.5);
-          border: 1px solid white;
+          -border: 1px solid white;
           aspect-ratio: 1;
           display: flex;
           justify-content: center;
@@ -106,8 +106,9 @@
       <div class="gameel">
 
         <div class="grid-container">
-          <svg onpointerdown="console.log(event.clientX,event.clientY)" class="svg-overlay" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 120" preserveAspectRatio="none">
-              <line x1="5" y1="5" x2="85" y2="85" stroke-linecap="round" stroke="red" stroke-width="8"/>
+          <svg onpointerdown="alert_coords(event)" class="svg-overlay" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 120" preserveAspectRatio="none">
+            <line x1="5" y1="5" x2="85" y2="85" stroke-linecap="round" stroke="red" stroke-width="7"/>
+            <line x1="15" y1="5" x2="85" y2="75" stroke-linecap="round" stroke="green" stroke-width="7"/>
           </svg>       
           <!-- 9 x 12 = 108 grid items -->
           <script>
@@ -117,7 +118,7 @@
           </script>
         </div>
 
-        <div class="fixratio" style="aspect-ratio:55/25;">HELLO WORLD</div>
+        <!-- <div class="fixratio" style="aspect-ratio:55/25;">HELLO WORLD</div> -->
         <!-- <div class="fixratio" style="aspect-ratio:55/75;">HELLO WORLD</div> -->
          <div class="wordbox">
           <div class="wordbox-title">WORDS</div>
@@ -133,6 +134,19 @@
       </div>
     </div>
 </body>
+<script>
+  var svg = document.querySelector('svg')
+  var pt = svg.createSVGPoint();  // Created once for document
+
+  function alert_coords(evt) {
+    pt.x = evt.clientX;
+    pt.y = evt.clientY;
+
+    // The cursor point, translated into svg coordinates
+    var cursorpt =  pt.matrixTransform(svg.getScreenCTM().inverse());
+    console.log("(" + cursorpt.x + ", " + cursorpt.y + ")");
+  }
+</script>
 <script>
   document.body.style.textSizeAdjust='none'
   //setInterval(() => location.reload(), 1000);
