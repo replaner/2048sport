@@ -61,12 +61,37 @@
         gap: 1em;
         padding:1em;
         font-size: 3cqw;
+        position:relative;
       }
       .wordbubble {
         background: #ffc6cf;
-        padding:1em;
+        padding:.3em .5em;
         border-radius: 1em;
         font-size: 3cqw;
+      }
+      .bubblebtn {
+        background: #4ba3f5;
+        padding:.3em .5em;
+        border-radius: 1em;
+        font-size: 3cqw;
+        line-height: 3cqw;
+        font-weight: bold;
+        color: #fff;
+        box-shadow: 0 0 0 1cqw rgb(85, 85, 85);
+        position:absolute;
+        left:1em;
+        top:1em;
+      }
+      .bubblebtnfake {
+        background: #4ba3f5;
+        padding:.3em .5em;
+        border-radius: 1em;
+        font-size: 3cqw;
+        line-height: 3cqw;
+        font-weight: bold;
+        color: #fff;
+        box-shadow: 0 0 0 1cqw rgb(85, 85, 85);
+        opacity: 0;
       }
       .wordbox-title {
         width:100%;
@@ -77,13 +102,13 @@
       }
 
       .grid-container {
-          position: relative;
-          pointer-events: none;
-          display: grid;
-          grid-template-columns: repeat(9, 2fr);
-          width: 100%;
-          border-radius: 3vh;
-          background: rgba(92, 176, 255,.5);
+        position: relative;
+        pointer-events: none;
+        display: grid;
+        grid-template-columns: repeat(9, 2fr);
+        width: 100%;
+        border-radius: 3vh;
+        background: rgba(92, 176, 255,.5);
       }
       .svg-overlay {
           -position: absolute;
@@ -111,15 +136,17 @@
         <line x1="15" y1="5" x2="85" y2="75" stroke-linecap="round" stroke="green" stroke-width="7"/>
       </svg>       
       <div class="wordbox">
-        <div class="wordbox-title">WORDS</div>
-        <div class="wordbubble">word</div>
-        <div class="wordbubble">reload</div>
-        <div class="wordbubble">word</div>
-        <div class="wordbubble">crossword</div>
-        <div class="wordbubble">word</div>
-        <div class="wordbubble">background</div>
-        <div class="wordbubble">wwidthord</div>
-        <div class="wordbubble">oncontextmenu</div>
+        <!-- <div class="wordbox-title">WORDS</div> -->
+        <div class="bubblebtn">☰</div>
+        <div class="bubblebtnfake">☰</div>
+        <div class="wordbubble">WORD</div>
+        <div class="wordbubble">RELOAD</div>
+        <div class="wordbubble">WORD</div>
+        <div class="wordbubble">CROSSWORD</div>
+        <div class="wordbubble">WORD</div>
+        <div class="wordbubble">BACKGROUND</div>
+        <div class="wordbubble">ONCLICK</div>
+        <div class="wordbubble">ONCONTEXTMENU</div>
       </div>
     </div>
   </div>
@@ -127,6 +154,7 @@
 
 <script>
   var svg = document.querySelector('svg')
+  let char = i => i <15 ? 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.charAt(i) : '⬤'
 
   for (let row = 0; row < 12; row++) {
       for (let col = 0; col < 9; col++) {
@@ -137,10 +165,12 @@
           textElement.setAttribute("x", x);
           textElement.setAttribute("y", y);
           textElement.setAttribute("font-size", "5");
+          textElement.setAttribute("font-weight", "bold");
           textElement.setAttribute("text-anchor", "middle");
           textElement.setAttribute("dominant-baseline", "middle");
           textElement.setAttribute("font-family", "Trebuchet MS, sans-serif");
-          textElement.textContent = row * 9 + col + 1;
+          if (row+col>=15) textElement.setAttribute("fill", "#00000055");
+          textElement.textContent = char(row+col);
 
           svg.appendChild(textElement);
       }
@@ -163,7 +193,7 @@
   //setInterval(() => location.reload(), 1000);
   document.onclick = e=> {
     if('gameel background'.includes(e.target.className)) eval(prompt('eval'))
-    else e.target.parentElement.append(e.target.cloneNode(true)) }
+    else e.target.after(e.target.cloneNode(true)) }
 
   document.oncontextmenu = e=> {
     e.preventDefault()
