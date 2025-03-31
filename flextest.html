@@ -10,6 +10,7 @@
         padding: 0;
         box-sizing: border-box;
         overscroll-behavior: none;
+        user-select: none;
       }
       html, body { 
         height:100%;
@@ -170,7 +171,6 @@
     line = document.querySelector('line')
     line.setAttribute('x1', clientToSvgXY(e).x)
     line.setAttribute('y1', clientToSvgXY(e).y)
-    console.log(line)
   }
   document.onmousemove = document.ontouchmove = e=> {
     if (!line) return
