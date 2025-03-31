@@ -10,13 +10,11 @@
         padding: 0;
         box-sizing: border-box;
       }
-      html, body {
+      html, body { 
         height:100%;
-        -container-type:size;
       }
       .background {
         display: flex;
-        -flex-direction: column; 
         justify-content: center;
         align-content: center;
         align-items: stretch;      
@@ -24,28 +22,19 @@
         background: linear-gradient(45deg, #f7797d, #fbd786, #c6ffdd);
       }
       .gameel {
-        /*display:flex;
-        flex-direction: column; 
-        -justify-content: center;
-        align-items: center; */
         overflow: auto; /* Enables scrolling */
         display: grid;
         place-items: center; 
         align-content: space-evenly;
         background: linear-gradient(45deg, #7986f7, #06cc52, #ffc6cf);
         width: 100vw;
-        -aspect-ratio: 2 / 3;
         max-width: 55cqh;
         container-type: inline-size;
-        -min-height: 90vh;
-        -margin: 0 auto;
         font-family: Trebuchet MS, sans-serif
       }
       .fixratio {
         background:#eee; 
         width:100%; 
-        -aspect-ratio: 8 / 14; 
-        -margin:1%;
         font-size: 4cqw;
         border:1px dotted gray;     
       }
@@ -55,7 +44,6 @@
         margin:0%;
         border-radius: 2cqw;
         display:flex;
-        -flex-direction: column;
         justify-content: center;
         flex-wrap: wrap;
         gap: 1em;
@@ -70,7 +58,7 @@
         font-size: 3cqw;
       }
       .wordbubble:nth-child(2) {
-        margin-left: 3em;
+        margin-left: 2em;
       }
       .bubblebtn {
         background: #4ba3f5;
@@ -82,19 +70,8 @@
         color: #fff;
         box-shadow: 0 0 0 1cqw rgb(85, 85, 85);
         position:absolute;
-        left:1em;
-        top:1em;
-      }
-      .bubblebtnfake {
-        background: #4ba3f5;
-        padding:.3em .5em;
-        border-radius: 1em;
-        font-size: 3cqw;
-        line-height: 3cqw;
-        font-weight: bold;
-        color: #fff;
-        box-shadow: 0 0 0 1cqw rgb(85, 85, 85);
-        opacity: 0;
+        left:.5em;
+        top:.5em;
       }
       .wordbox-title {
         width:100%;
@@ -103,7 +80,6 @@
         padding:1em;
         font-size: 4cqw
       }
-
       .grid-container {
         position: relative;
         pointer-events: none;
@@ -113,7 +89,9 @@
         border-radius: 3vh;
         background: rgba(92, 176, 255,.5);
       }
-      .svg-overlay {
+      .tilegrid {
+        background: #ffffff88;
+        border-radius: 2em;
         -position: absolute;
         pointer-events: all;
         width:100%;
@@ -134,14 +112,13 @@
   <div class="background">
     <div class="gameel">
 
-      <svg onpointerdown="alert_coords(event)" class="svg-overlay" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 120" preserveAspectRatio="none">
+      <svg onpointerdown="alert_coords(event)" class="tilegrid" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 120">
         <line x1="5" y1="5" x2="85" y2="85" stroke-linecap="round" stroke="red" stroke-width="7"/>
         <line x1="15" y1="5" x2="85" y2="75" stroke-linecap="round" stroke="green" stroke-width="7"/>
       </svg>       
       <div class="wordbox">
         <!-- <div class="wordbox-title">WORDS</div> -->
         <div class="bubblebtn">☰</div>
-        <!-- <div class="bubblebtnfake">☰</div> -->
         <div class="wordbubble">WORD</div>
         <div class="wordbubble">RELOAD</div>
         <div class="wordbubble">WORD</div>
@@ -182,13 +159,26 @@
 <script>
   var pt = svg.createSVGPoint();  // Created once for document
 
-  function alert_coords(evt) {
-    pt.x = evt.clientX;
-    pt.y = evt.clientY;
-
-    // The cursor point, translated into svg coordinates
-    var cursorpt =  pt.matrixTransform(svg.getScreenCTM().inverse());
-    alert("(" + cursorpt.x + ", " + cursorpt.y + ")");
+  function clientToSvgXY(ev) {
+    pt.x = ev.clientX;
+    pt.y = ev.clientY;
+    return pt.matrixTransform(svg.getScreenCTM().inverse());
+  }
+  let x1,x2,line = null
+  svg.onpointerdown = e=> {
+    line = document.querySelector('line')
+    line.setAttribute('x1', clientToSvgXY(e).x)
+    line.setAttribute('y1', clientToSvgXY(e).y)
+    console.log(line)
+  }
+  svg.onmousemove = svg.ontouchmove = e=> {
+    if (!line) return
+    if (e.touches) e = e.touches[0]
+    line.setAttribute('x2', clientToSvgXY(e).x)
+    line.setAttribute('y2', clientToSvgXY(e).y)
+  }
+  document.onmouseup = document.ontouchend = svg.onblur = e=> {
+    line = null
   }
 </script>
 <script>
