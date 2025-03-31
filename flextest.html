@@ -9,6 +9,7 @@
         margin: 0;
         padding: 0;
         box-sizing: border-box;
+        overscroll-behavior: none;
       }
       html, body { 
         height:100%;
@@ -112,7 +113,7 @@
   <div class="background">
     <div class="gameel">
 
-      <svg onpointerdown="alert_coords(event)" class="tilegrid" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 120">
+      <svg class="tilegrid" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 120">
         <line x1="5" y1="5" x2="85" y2="85" stroke-linecap="round" stroke="red" stroke-width="7"/>
         <line x1="15" y1="5" x2="85" y2="75" stroke-linecap="round" stroke="green" stroke-width="7"/>
       </svg>       
@@ -171,7 +172,7 @@
     line.setAttribute('y1', clientToSvgXY(e).y)
     console.log(line)
   }
-  svg.onmousemove = svg.ontouchmove = e=> {
+  document.onmousemove = document.ontouchmove = e=> {
     if (!line) return
     if (e.touches) e = e.touches[0]
     line.setAttribute('x2', clientToSvgXY(e).x)
