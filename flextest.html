@@ -1,199 +1,781 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Non-Squashing Flexbox</title>
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        overscroll-behavior: none;
-        user-select: none;
-      }
-      html, body { 
-        height:100%;
-      }
-      .background {
-        display: flex;
-        justify-content: center;
-        align-content: center;
-        align-items: stretch;      
-        min-height: 100%;
-        background: linear-gradient(45deg, #f7797d, #fbd786, #c6ffdd);
-      }
-      .gameel {
-        overflow: auto; /* Enables scrolling */
-        display: grid;
-        place-items: center; 
-        align-content: space-evenly;
-        background: linear-gradient(45deg, #7986f7, #06cc52, #ffc6cf);
-        width: 100vw;
-        max-width: 55cqh;
-        container-type: inline-size;
-        font-family: Trebuchet MS, sans-serif
-      }
-      .fixratio {
-        background:#eee; 
-        width:100%; 
-        font-size: 4cqw;
-        border:1px dotted gray;     
-      }
-      .wordbox {
-        background:#eee;
-        width:98%;
-        margin:0%;
-        border-radius: 2cqw;
-        display:flex;
-        justify-content: center;
-        flex-wrap: wrap;
-        gap: 1em;
-        padding:1em;
-        font-size: 3cqw;
-        position:relative;
-      }
-      .wordbubble {
-        background: #ffc6cf;
-        padding:.3em .5em;
-        border-radius: 1em;
-        font-size: 3cqw;
-      }
-      .wordbubble:nth-child(2) {
-        margin-left: 2em;
-      }
-      .bubblebtn {
-        background: #4ba3f5;
-        padding:.3em .5em;
-        border-radius: 1em;
-        font-size: 3cqw;
-        line-height: 3cqw;
-        font-weight: bold;
-        color: #fff;
-        box-shadow: 0 0 0 1cqw rgb(85, 85, 85);
-        position:absolute;
-        left:.5em;
-        top:.5em;
-      }
-      .wordbox-title {
-        width:100%;
-        background: #fbd786;
-        text-align: center;
-        padding:1em;
-        font-size: 4cqw
-      }
-      .grid-container {
-        position: relative;
-        pointer-events: none;
-        display: grid;
-        grid-template-columns: repeat(9, 2fr);
-        width: 100%;
-        border-radius: 3vh;
-        background: rgba(92, 176, 255,.5);
-      }
-      .tilegrid {
-        background: #ffffff88;
-        border-radius: 2em;
-        -position: absolute;
-        pointer-events: all;
-        width:100%;
-        -z-index: 0;
-      }
-      .grid-item {
-          -z-index: 1;
-          -border: 1px solid white;
-          aspect-ratio: 1;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-      }
-
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Non-Squashing Flexbox</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      overscroll-behavior: none;
+      user-select: none;
+    }
+    html, body { 
+      height:100%;
+    }
+    .background {
+      display: flex;
+      justify-content: center;
+      align-content: center;
+      align-items: stretch;      
+      min-height: 100%;
+      background: linear-gradient(45deg, #f7797d, #fbd786, #c6ffdd);
+    }
+    .gameel {
+      display: grid;
+      place-items: center; 
+      align-content: space-evenly;
+      background: linear-gradient(45deg, #7986f7, #06cc52, #ffc6cf);
+      width: 100vw;
+      max-width: 55cqh;
+      container-type: inline-size;
+      font-family: sans-serif
+    }
+    @keyframes bounce {
+      0% {transform-origin:50% 100%; scale: 1; transform: skew(0deg, 0deg); rotate: .9deg; }
+      25% {transform-origin:50% 100%; scale: 1.01 1.15; transform:skew(5deg, 0deg)}
+      50% {transform-origin:50% 100%; scale: 1; transform: skew(0deg, 0deg); rotate: -.9deg; }
+      75% {transform-origin:50% 100%; scale: 1.01 1.25; transform: skew(-1deg, 0deg) }
+      100% {transform-origin:50% 100%; scale: 1; transform: skew(0deg, 0deg); rotate: .9deg; }
+    }
+    @keyframes shimmer {
+      0% { filter: brightness(1.2) }
+      50% { filter: brightness(1) }
+      100% { filter: brightness(1.2) }
+    }
+  </style>
 </head>
 <body>
   <div class="background">
-    <div class="gameel">
-
-      <svg class="tilegrid" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 120">
-        <line x1="5" y1="5" x2="85" y2="85" stroke-linecap="round" stroke="red" stroke-width="7"/>
-        <line x1="15" y1="5" x2="85" y2="75" stroke-linecap="round" stroke="green" stroke-width="7"/>
-      </svg>       
-      <div class="wordbox">
-        <!-- <div class="wordbox-title">WORDS</div> -->
-        <div class="bubblebtn">☰</div>
-        <div class="wordbubble">WORD</div>
-        <div class="wordbubble">RELOAD</div>
-        <div class="wordbubble">WORD</div>
-        <div class="wordbubble">CROSSWORD</div>
-        <div class="wordbubble">WORD</div>
-        <div class="wordbubble">BACKGROUND</div>
-        <div class="wordbubble">ONCLICK</div>
-        <div class="wordbubble">ONCONTEXTMENU</div>
-      </div>
-    </div>
+    <div class="gameel"></div>
   </div>
 </body>
 
 <script>
-  var svg = document.querySelector('svg')
-  let char = i => i <15 ? 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.charAt(i) : '⬤'
-
-  for (let row = 0; row < 12; row++) {
-      for (let col = 0; col < 9; col++) {
-          let x = col*10 + 5; // Centering within each grid cell
-          let y = row*10 + 5;
-
-          let textElement = document.createElementNS("http://www.w3.org/2000/svg", "text");
-          textElement.setAttribute("x", x);
-          textElement.setAttribute("y", y);
-          textElement.setAttribute("font-size", "5");
-          textElement.setAttribute("font-weight", "bold");
-          textElement.setAttribute("text-anchor", "middle");
-          textElement.setAttribute("dominant-baseline", "middle");
-          textElement.setAttribute("font-family", "Trebuchet MS, sans-serif");
-          if (row+col>=15) textElement.setAttribute("fill", "#00000055");
-          textElement.textContent = char(row+col);
-
-          svg.appendChild(textElement);
-      }
-  }
+  let charGrid = 'ABCDEX KLMNOY FGHIJX KLMNOY PQRSTZ UVWXYF UVWXYF Z⬤⬤⬤G⬤ WGXYZ⬤ KLMNOY'.split(' ').map(e=>e.split(''))
+  console.log('charGrid',charGrid)
 </script>
-<script>
-  var pt = svg.createSVGPoint();  // Created once for document
 
-  function clientToSvgXY(ev) {
-    pt.x = ev.clientX;
-    pt.y = ev.clientY;
-    return pt.matrixTransform(svg.getScreenCTM().inverse());
+<script>
+let node = (...parent_html) => {
+  let template = document.createElement('template')
+  template.innerHTML = parent_html.at(-1)
+  let el = template.content.firstElementChild
+  if (parent_html.length==2) parent_html[0].append(template.content)
+  return el
+}
+
+let gameel = document.querySelector('.gameel')
+
+let init =()=> {
+  loadLocalDataToDict()
+  gameSeries1()
+  return;
+  //newQuizPopup('Welcome to the game!', ['Hello!', 'let','us','play!']).show()
+  //return
+  let {charGrid,roundDict} = generateCharGrid(9,14,globDict.words)
+  //topbar()
+  //topbar.progress(2,5)
+  //console.log('globDict',globDict)
+  //newPhraseBoard({whratio:3, tasks:generateRoundTask(roundDict).tasks})
+  //gameel.append(newTileBoard(charGrid).el)
+  gameRound('phrases')
+  
+}
+onload = ()=> init()
+//let gameel = document.querySelector('.gameel')
+
+var randEl = arr=> arr[Math.floor((Math.random()*arr.length))]
+var greenColors = ['fff',"FDFC96","E4F78F","BFEF88","97E47E","79DC78","A3CF3B","F7AD20","F29124","EC6B27","ffff3f"]
+
+let synthSpeech = (str='HELLO') =>{
+  let utterance = new SpeechSynthesisUtterance(str.toLowerCase())
+  speechSynthesis.speak(utterance);
+}
+
+let gameSeries1 = ()=> {
+  let container = document.createElement('div')
+  //container.style.background = '#ddd'
+  let bubble = ({phrase,transl,stage,errorScore,successScore,nextDate,damaged}) => {
+    console.log({phrase,transl,stage,errorScore,successScore,nextDate,damaged})
+    let el = document.createElement('div')
+    el.style = `font-size:3cqw; border-radius:2cqw; border:.1cqw solid #555; display:inline-block; padding:1cqw; margin:.2cqw;`
+    el.style.background = '#'+greenColors[stage]
+    el.innerHTML = phrase    
+    if (nextDate != 0 && nextDate < Date.now()) el.style.animation = `bounce ${Math.random() * .3 + 0.6}s infinite`
+    else if (nextDate != 0) {
+      el.style.animation = `shimmer ${Math.random() * 1 + 3}s infinite`
+      let share = intervalShare(stage,nextDate)
+      el.style.background = `linear-gradient(-90deg, #${greenColors[stage-1]} ${share}, #${greenColors[stage]} ${share})`
+    }
+
+    if (successScore) el.innerHTML+= ' '+successScore+'·'+errorScore
+    if (damaged) el.style.boxShadow = 'inset 0 0 .3em .1em red'
+    el.onclick = e=> {
+      synthSpeech(phrase)
+    }
+    return el
   }
-  let x1,x2,line = null
+ 
+  let bubblebox = (title,dictName,open) => {
+    //open=1
+    let boxEl = document.createElement('div')
+    boxEl.style = 'background:#00000055; border-radius:2rem; text-align:center; padding:3cqw 1cqw; margin:1em; position:relative;'
+    boxEl.style.fontFamily = 'Trebuchet MS, sans-serif'
+    boxEl.insertAdjacentHTML('afterbegin',
+      `<div style="font-size:3cqw; color:white; padding:1cqw">${title}</div>`)
+    
+    let progressbar = node(boxEl,`\n<div class="progressbar" style="padding:.3em; border-radius:1em; white-space:pre; line-height:1em; display:flex;  align-items:center; justify-content:center;"/>`)
+
+    for (let i=0;i<Math.max(9,maxStage(dictName));i++) progressbar.append(progressEl({
+      str: i==5 ? '🔓' : '',
+      big: i <= minStage(dictName) && open ? 1 : 0,
+      color: (i <= maxStage(dictName) && open) ? '#'+greenColors[i] : ''}))  
+
+    globDict[dictName].forEach(e=>boxEl.append(bubble(e)))
+
+    if (!open) boxEl.insertAdjacentHTML('afterbegin',`
+      <div style="background:#00000077; position:absolute;inset:0;  border-radius:2rem; font-size:15cqw; display:flex; justify-content: center;align-items: center">🔒</div> 
+    `)
+    else {
+      //boxEl.insertAdjacentHTML('beforeend', '<div style="font-size:2rem">30 words ready!</div>')
+      let readyWords = globDict[dictName].filter(e=>e.nextDate==0).length
+      let eagerWords = globDict[dictName].filter(e=>e.nextDate!=0 && e.nextDate<Date.now()).length
+      let  readyTime = globDict[dictName].map(e=>e.nextDate).filter(e=>e).sort()[4]
+      let timestampToDHM = t => {
+        let d = Math.floor(t/(1000*60*60*24))
+        let h = Math.floor(t/(1000*60*60)) % 24
+        let m = Math.floor(t/(1000*60)) % 60
+        if (d==0 && h==0) return `${m}мин`
+        if (d==0) return `${h}ч ${m}мин`
+        return `${d}д ${h}ч`  
+      }
+      let btnText
+      if (eagerWords>4) btnText = `Жаждут тренировки ${eagerWords}<br>Играть`
+      else if (readyWords+eagerWords>4) btnText = `Готовы к тренировке ${readyWords+eagerWords}<br>Играть`
+      else btnText = `Слова готовятся, нужно минимум 5.<br>Приходите через ${timestampToDHM(readyTime-Date.now())}`
+
+      let btn = document.createElement('div')
+      btn.style = "background:lightgray; border-radius:2em; font-size:3cqw; padding:1em; margin:1em 1em 0 1em"
+      btn.innerHTML = btnText
+      boxEl.append(btn)
+      if (readyWords+eagerWords>4) btn.style.background = 'lightgreen'
+      btn.onclick = ()=> {
+        container.remove()
+        gameRound(dictName) }
+      
+    } 
+    return boxEl
+  }
+  let minStage = dictName => Math.min(...globDict[dictName].map(e=>e.stage))
+  let maxStage = dictName => Math.max(...globDict[dictName].map(e=>e.stage))
+  localData.set('opengames', Math.max(
+    localStorage.opengames || 1,
+    minStage('words')>4 ? 2 : 0, 
+    minStage('phrases')>4 ? 3 : 0 ) )
+  container.append(bubblebox('WORDS','words',localData.get('opengames')>0))
+  container.append(bubblebox('PHRASES','phrases',localData.get('opengames')>1))
+  container.append(bubblebox('SENTENCES','sentences',localData.get('opengames')>2))
+  gameel.append(container)
+  return container
+}
+
+function createEmojiBurst(x,y) {
+    const emojis = ["🎉", "🔥", "✨", "💥", "🎈", "🎊", "💫", "❤️"];
+    const numEmojis = 15;
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
+
+    for (let i = 0; i < numEmojis; i++) {
+        const emoji = document.createElement("div");
+        emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        gameel.appendChild(emoji);
+
+        // Random movement
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 100
+        const xMove = Math.cos(angle) * distance;
+        const yMove = Math.sin(angle) * distance;
+
+        // Set styles
+        Object.assign(emoji.style, {
+            position: "absolute",
+            left: `${centerX}px`,
+            top: `${centerY}px`,
+            fontSize: "3rem",
+            pointerEvents: "none",
+            userSelect: "none",
+            transition: "transform 1s ease-out, opacity 1s",
+        });
+
+        // Trigger animation after a small delay
+        requestAnimationFrame(() => {
+            emoji.style.transform = `translate(${xMove}px, ${yMove}px) scale(0.5)`;
+            emoji.style.opacity = "0";
+        });
+
+        // Remove after animation
+        setTimeout(() => emoji.remove(), 1000);
+    }
+}
+var newQuizPopup = (message, options, callback) => {
+  var result = { 
+    show: ()=> backdrop.style.opacity = 1, 
+    hide: ()=> backdrop.remove() }
+
+  var backdrop = node(gameel,`\n<div class="backdrop" style="position:fixed; left:0; top:0; width:100%; height:100%; display:grid; place-items:center; backdrop-filter: blur(2cqw);"/>`)
+  
+  var popup = node(backdrop,`\n<div class="popup" style="margin:5%; text-align:center; font-size:5cqw; background:#fff; padding:5cqw; border-radius:3cqw; box-shadow:0 0 2cqw rgba(0,0,0,0.5); display:inline-block; transition: all .2s ease-in;">${message}</div>`)
+
+  var addOption = text => {
+    let option = node(popup,`\n<div class="option" style="padding:3cqw; border-radius:3cqw; background:#ddd; cursor:pointer; margin:3cqw;">${text}</div>`)
+    setTimeout(() => { //to avoid false click
+      option.onclick = ()=> {
+        result.hide()
+        callback(text) }
+    }, 300);
+  }
+  options.forEach(e=> addOption(e))
+  result.show()
+  return result
+}
+
+let nextDate = stage => {
+  let minRepititionInterval = 1000*60*10
+  let intervalMultiplier = 3
+  return Date.now() + minRepititionInterval * Math.pow(intervalMultiplier,stage-1) }
+let intervalShare = (stage, nextDate) => {
+  let minRepititionInterval = 1000*60*10
+  let intervalMultiplier = 3
+  return (nextDate - Date.now()) / (minRepititionInterval * Math.pow(intervalMultiplier,stage-1))*60+20 + '%'
+}
+
+var gameRound = (dictName,round)=> {
+
+  var randTranslations = (transl,amountOfWrongOpts=3)=> {
+    var res = roundDict.map(e=>e.transl).filter(e=>e!=transl).sort(()=>Math.random()-.5).slice(0,amountOfWrongOpts)
+    res.push(transl)
+    return res.sort(()=>Math.random()-.5)  
+  }
+  topbar()
+  var {charGrid, roundDict} = generateCharGrid(8,10,globDict[dictName],99)
+  let roundTask = generateRoundTask(roundDict)
+  console.log('roundTask', roundTask)
+  if (dictName=='sentences') {
+    round = round || 1
+    topbar.progress(round,5)
+    var phraseBoard = newPhraseBoard({whratio:3,tasks:roundTask.tasks})   
+  } else {
+    var phraseBoard = newPhraseBoard({whratio:3,tasks:roundTask.tasks})    
+  }
+
+  var tileBoard = newTileBoard(charGrid)
+  
+  let pi = roundTask.ordered ? 0 : -1, //phrase index
+      wi = 0; //word index
+
+  let win = () => {
+    
+    //localStorage[dictName] = JSON.stringify(globDict[dictName])
+    localData.set(dictName, globDict[dictName])
+    if (round<5) {
+      gameel.innerHTML=''
+      gameRound(dictName,round+1)
+    } else {
+      createEmojiBurst()
+      newQuizPopup('💪🎉🧠',['WIN !'],str=>location.reload())
+      document.createElement('div')
+    }
+  }
+  if (roundTask.ordered) phraseBoard.highlightItem(0)
+
+  tileBoard.onLineDrawn = word => {
+    if (pi==-1) pi = roundTask.tasks.findIndex(e=>e.phraseWords[0]==word && !e.striked)
+    if (pi>-1) {
+      let task = roundTask.tasks[pi]
+      if (word == task.phraseWords[wi]) {
+        console.log('onLineDrawn right word',word)
+        phraseBoard.strikeWord(pi, wi)
+        phraseBoard.highlightItem(pi)
+        wi++
+        if (task.phraseWords.length == wi) {
+          synthSpeech(roundDict[pi].phrase)
+          newQuizPopup(roundDict[pi].phrase, randTranslations(roundDict[pi].transl, roundDict[pi].stage),selectedOption => {
+            if (selectedOption == roundDict[pi].transl){
+              phraseBoard.strikePhrase(pi)
+              task.striked = true
+              roundDict[pi].nextDate = nextDate(roundDict[pi].stage += 1)
+              roundDict[pi].successScore++
+              roundDict[pi].damaged = Math.max(roundDict[pi].damaged-1,0)
+              console.log(roundDict)
+              if (!roundTask.tasks.find(e=>!e.striked)) win()
+              else if (roundTask.ordered) phraseBoard.highlightItem(pi += 1)
+              else pi = -1
+            } else {
+              tileBoard.removeLines(task.phraseWords.length)
+              phraseBoard.damageItem(pi)
+              roundDict[pi].damaged = 2
+              synthSpeech('duh')
+              roundDict[pi].errorScore++
+              roundDict[pi].stage = Math.max(0, roundDict[pi].stage-2)
+              roundDict[pi].nextDate = nextDate(roundDict[pi].stage)
+            }       
+            wi = 0
+          })
+        }
+        return
+      }
+    }
+    tileBoard.removeLines(1)
+  }
+}
+
+let topbar = ()=> {
+  topbar.progress = (num,total)=> {
+    midEl.innerHTML = ''
+    for(let i=0; i<num; i++) midEl.append(progressEl({color: 'lightgreen',big:1,str:''}))
+    for(let i=0; i<total-num; i++) midEl.append(progressEl({color: '',big:0,str:''}))
+  }
+
+  let el = node(gameel,`\n<div class="topbar" style="background:#eee; width:98%; margin:0%; border-radius:2cqw; display:flex; justify-content:space-between; flex-wrap:wrap; gap:1em; padding:.5em; font-size:3cqw; position:relative;"></div>`)
+
+  let leftEl = node(el,`\n<div class="leftEl" style="padding:.3em; border-radius:1em; white-space:pre; line-height:1em; display:flex; background:#f5fdff; align-items:center;"> ☰ </div>`)
+
+  let midEl = node(el,`\n<div class="midEl" style="padding:.3em; border-radius:1em; white-space:pre; line-height:1em; display:flex; background:#f5fdff; align-items:center;"/>`)
+
+  let rightEl = node(el,`\n<div class="rightEl" style="padding:.3em; border-radius:1em; white-space:pre; line-height:1em; display:flex; background:#f5fdff; align-items:center;"> SCORE </div>`)
+
+  // midEl.append(progressEl({color: 'lightgreen',big:1,str:''}))
+  // midEl.append(progressEl({color: '',big:1,str:''}))
+  // midEl.append(progressEl({color: 'lightgreen',big:0,str:''}))
+  // midEl.append(progressEl({color: 'lightgreen',big:0,str:'🔒'}))
+  // midEl.append(progressEl({color: '',big:0,str:''}))
+  // midEl.append(progressEl({color: '',big:0,str:'🔒'}))
+  // midEl.append(progressEl({color: '',big:0,str:''}))
+}
+
+let progressEl = ({color,big,str})=> {
+  let el = node(`<div class="progressel" style="font-size:3cqw; padding:1cqw;  
+    border-radius:100%; border:.2cqw solid #555; display:flex; line-height:4cqw;
+    justify-content:center; align-items:center; margin:.5cqw;"/>`)
+  if (big) {
+    el.style.width = el.style.height = '4cqw'
+    if (color) el.style.background = color
+    return el
+  } 
+  if (str) {
+    el.innerHTML = str
+    el.style.width = el.style.height = '3cqw'
+    el.style.border = ``
+    if (color) {
+      el.style.width = el.style.height = '3cqw'
+      el.style.border = ``//.3rem solid ${color}`
+    } else el.style.filter = 'grayscale(1)'
+  } else {
+    el.style.width = el.style.height = '1cqw'
+    if (color) el.style.background = color
+  }
+  return el
+} 
+
+let getLineFromGrid = (r1,c1,r2,c2,grid)=> {
+  let dr = r2==r1 ? 0 : r2>r1 ? 1 : -1,
+      dc = c2==c1 ? 0 : c2>c1 ? 1 : -1,
+      len = Math.max(Math.abs(r2-r1), Math.abs(c2-c1)) + 1
+  return Array(len).fill(0).map((e,i) => grid[r1+i*dr][c1+i*dc])
+} 
+
+let newTileBoard = chGrid => {
+  result = {
+    el: svg = node(`<svg style="background:#ffffff88; border-radius:2cqw; outline:none; max-width:96cqw; max-height:70cqh;"/>`),
+    onLineDrawn: selectedWord => {alert(selectedWord)}, 
+    removeLines: num => { lineArr.splice(-num,num).forEach(e=>e.remove()) }, 
+    remove: () => svg.remove()  }
+
+  //svg.style= `background:#ffffff88; border-radius:2cqw; outline:none; max-height:138cqw;`
+  svg.setAttribute('viewBox',`0 0 ${chGrid[0].length*10} ${chGrid.length*10}`)
+  svg.setAttribute('font-size', 5)
+  svg.setAttribute('font-weight', 'bold')
+  svg.setAttribute('text-anchor', 'middle')
+  svg.setAttribute('fill', '#555')
+  svg.setAttribute('font-family', 'sans-serif')
+
+  //crazy adding letters
+  chGrid.forEach((r,ir)=>r.forEach((c,ic)=>svg.insertAdjacentHTML('beforeend',
+  `\n<text x="${ic*10+5}" y="${ir*10+6.8}" opacity="${c=='⬤'?.3:1}">${c}</text>`
+  )))
+
+  let c1, r1, c2, r2, dir, line = null, lineArr = [], pt = svg.createSVGPoint()
+  let pointerEventToSvgCR = ev => {
+    pt.x = ev.clientX; pt.y = ev.clientY;
+    pt = pt.matrixTransform(svg.getScreenCTM().inverse())
+    return [ Math.round((pt.x-5)/10), Math.round((pt.y-5)/10) ]
+  }
   svg.onpointerdown = e=> {
-    line = document.querySelector('line')
-    line.setAttribute('x1', clientToSvgXY(e).x)
-    line.setAttribute('y1', clientToSvgXY(e).y)
+    svg.onblur();
+    [c1, r1] = [c2, r2] = pointerEventToSvgCR(e)
+    if (c1<0 || c1>=chGrid[0].length || r1<0 || r1>=chGrid.length) return
+    
+    line = document.createElementNS("http://www.w3.org/2000/svg",'polyline')
+    line.setAttribute('stroke-linecap','round')
+    line.setAttribute('stroke','white')
+    line.setAttribute('stroke-width', 7)
+    line.setAttribute('opacity', .5)
+    line.setAttribute('points', `${c1*10+5},${r1*10+5} ${c2*10+5},${r2*10+5}`)
+    svg.querySelector('text').before(line,'\n')
+    lineArr.push(line)
   }
   document.onmousemove = document.ontouchmove = e=> {
     if (!line) return
     if (e.touches) e = e.touches[0]
-    line.setAttribute('x2', clientToSvgXY(e).x)
-    line.setAttribute('y2', clientToSvgXY(e).y)
+    let [c, r] = pointerEventToSvgCR(e)
+    if (c2==c && r2==r) return   
+
+    /*sticky line approximation*/
+    if (c1==c) dir = 'vertical'
+    else if (r1==r) dir = 'horizontal'
+    else if ((c1-c)==(r1-r)) dir = 'diagonal left'
+    else if ((c1-c)==(r-r1)) dir = 'diagonal right'
+    if (dir == 'vertical') c = c1
+    else if (dir == 'horizontal') r = r1
+    else if (dir == 'diagonal left') r = r1 + (c-c1)
+    else if (dir == 'diagonal right') r = r1 - (c-c1)
+    else return //*/
+
+    if (c<0 || c>=chGrid[0].length || r<0 || r>=chGrid.length) return    
+    [c2, r2] = [c, r] 
+    line.setAttribute('points', `${c1*10+5},${r1*10+5} ${c2*10+5},${r2*10+5}`)
   }
   document.onmouseup = document.ontouchend = svg.onblur = e=> {
+    if (!line) return
+    result.onLineDrawn(getLineFromGrid(r1,c1,r2,c2,chGrid).join(''))
     line = null
   }
-</script>
-<script>
-  document.body.style.textSizeAdjust='none'
-  //setInterval(() => location.reload(), 1000);
-  document.onclick = e=> {
-    if('gameel background'.includes(e.target.className)) eval(prompt('eval'))
-    else e.target.after(e.target.cloneNode(true)) }
+  gameel.append('\n',svg,'\n')
+  return result
+}
 
-  document.oncontextmenu = e=> {
-    e.preventDefault()
-    console.log(e.target.className)
-    if('gameel background'.includes(e.target.className)) location.reload()//alert((({width,height})=>height/width)(document.querySelector('.gameel').getBoundingClientRect()))//location.reload()//
-    else e.target.remove()
+var generateRoundTask = dict => {
+  /*{ordered:bool, 
+     tasks: [{phraseWords: ['str'],
+              phraseMask: bool, 
+              transl: 'str', 
+              translMask: bool, 
+              ordered: bool }]} */
+  return {ordered: dict.find(e=>e.stage<6) ? 0 : 1, tasks: dict.map(e => {
+    let phraseMask, translMask;
+    if (e.stage == 0) [phraseMask, translMask] = [0, 1]
+    if (e.stage == 1) [phraseMask, translMask] = [0, 1]
+    if (e.stage == 2) [phraseMask, translMask] = [1, 0]
+    if (e.stage == 3) [phraseMask, translMask] = [1, 0]
+    if (e.stage == 4) [phraseMask, translMask] = [1, 1]
+    if (e.stage == 5) [phraseMask, translMask] = [1, 1]
+    if (e.stage > 5 ) [phraseMask, translMask] = [1, 0]
+    return {
+      phraseWords: e.phrase.match(/[\w’']+|[^\s\w]/g),
+      phraseMask: phraseMask,
+      transl: e.transl,
+      translMask: translMask,
+      striked: false 
+    }
+  })}
+}
+
+let newPhraseBoard = ({whratio,tasks}) => {  
+  let result = {
+    strikePhrase: (pi, color='lightgreen') => {
+      result.highlightItem()
+      items[pi].phraseEls.forEach(e=> e.style.filter = e.style.color = '') 
+      items[pi].translEl.style.filter = ''
+      items[pi].el.style.color = 'black'
+      items[pi].el.style.background = color
+      items[pi].el.style.animation = `bounce 0.5s`
+    }, 
+    strikeWord: (pi,wi) => {
+      items[pi].phraseEls[wi].style.color = 'yellow'
+      items[pi].phraseEls[wi].style.filter = ''
+    },
+    highlightItem: (pi=-1) => {
+      items.forEach(e=> e.el.style.borderColor = `#555`)
+      if (pi>-1) items[pi].el.style.borderColor = 'lightgreen' 
+    },
+    damageItem: pi => {
+      items[pi].el.style.boxShadow = 'inset 0 0 .3em .1em red'
+      items[pi].phraseEls.forEach(e=> e.style.color = '')
+      if (tasks[pi].phraseMask) items[pi].phraseEls.forEach(e=> e.style.filter = 'blur(.3em)')
+    }, 
+    showTranslation: pi => {
+      items[pi].translEl.style.filter = ''
+    }, 
+    remove: ()=> container.remove()
   }
+  let items = [] // [{el:el, phraseEls: [el], translEl:el}]
+  let newItem = task=> {
+    let span = ({word, mask, isTransl})=> {
+      let s = node(`<span>${('.,!?-'.includes(word) ? '' : ' ')+word}</span>`)
+      if (mask) s.style.filter = 'blur(.3em)'
+      if (isTransl) s.style.fontSize = '.8em'
+      else s.style.fontWeight = 'bold'
+      return s 
+    }
+    let el = document.createElement('div')
+    el.style.userSelect = 'auto'
+    el.style.background = '#777'//'linear-gradient(#999, #777)'//'#999'
+    el.style.color = 'white'//'#333'
+    el.style.padding = `.3em .5em`
+    el.style.margin = `.1em`
+    el.style.borderRadius = '1.2em'
+    el.style.lineHeight = '0.9'
+    el.style.border = `.1em solid #555555`
+    let item = {
+      phraseEls: task.phraseWords.map(e=>span({word:e, mask:task.phraseMask})),
+      translEl: span({word:task.transl, mask:task.translMask, isTransl:1}),
+      el: el
+    }
+    items.push(item)
+    el.append(...item.phraseEls)
+    el.append(document.createElement('br'))
+    el.append(item.translEl)
+    container.append(el)
+  }  
+  let adaptFontSize = (startSize,unit)=> {
+    do container.style.fontSize = (startSize*=.95) + unit
+    while (container.scrollHeight > container.clientHeight)
+  }
+  let container = document.createElement('div')
+  container.style = `width:100%; aspect-ratio:${whratio}; display:flex; flex-wrap:wrap; justify-content:center; align-items:center; align-content:center; text-align:center; overflow:hidden`
+  gameel.append(container)
+
+  tasks.forEach(e=> newItem(e))
+  adaptFontSize(4,'cqw')
+  console.log('phraseBoard items',items)
+  return result
+}
+let localData = {
+  gameId: '1-searchlines',
+  set: (key, value) => {
+    let data = {}
+    if (localStorage.getItem(localData.gameId)) {
+      data = JSON.parse(localStorage.getItem(localData.gameId))
+    }
+    data[key] = value
+    localStorage.setItem(localData.gameId, JSON.stringify(data))
+  },
+  get: key => {
+    if (localStorage.getItem(localData.gameId)) {
+      let data = JSON.parse(localStorage.getItem(localData.gameId))
+      return data[key]
+    }
+    return null
+  },
+  remove: key => {
+    if (localStorage.getItem(localData.gameId)) {
+      let data = JSON.parse(localStorage.getItem(localData.gameId))
+      delete data[key]
+      localStorage.setItem(localData.gameId, JSON.stringify(data))
+    }
+  },
+  clear: () => localStorage.removeItem(localData.gameId)
+}
+
+var generateCharGrid = (w=11,h=11,fullDict,maxphrases)=>{
+  let dict = fullDict.map(e=>[e.phrase, e.transl, e.stage, e.nextDate])
+  let matrix= new Array(h).fill(0).map(()=> new Array(w).fill('⬤'))
+  let directions= [[1,-1],[1,1],[-1,1],[-1,-1],[0,-1],[1,0],[0,1],[-1,0]] 
+
+  let checkLine= (r,c,d,word)=> { 
+    let rEnd= r + directions[d][0] * word.length - 1
+    let cEnd= c + directions[d][1] * word.length - 1
+    if (cEnd<0 || cEnd>w-1 || rEnd<0 || rEnd>h-1) return false
+    for (let i=0; i<word.length; i++){
+      let cellValue= matrix [r+directions[d][0]*i] [c+directions[d][1]*i]
+      if (cellValue!=word[i] && cellValue!='⬤') return false
+    }
+    return true
+  }
+  let writeLine= (r,c,d,word)=> {
+    for (let i=0; i<word.length; i++){
+      matrix [r+directions[d][0]*i] [c+directions[d][1]*i] = word[i]
+    }
+  }
+  let writeWord= (r0,c0,d0,word)=> { 
+    let str, r=r0, c=c0, d=d0
+    do{
+      if (checkLine(r,c,d,word)) {
+        writeLine(r,c,d,word)
+        return true
+      }
+      if (d==7){
+        d=0
+        if (c==w-1){
+          c=0
+          if (r==h-1) r=0 
+          else r++
+        }else c++
+      }else d++
+    }while(!(r==r0 && c==c0 && d==d0))
+    console.log("Word "+word+" couldn't be writen")
+    return false
+  }
+  let writeWords= ()=> { 
+    roundDict = [...dict].sort(()=>Math.random()-.5).sort((a,b)=>{
+      var a3 = (a[3] == 0) ? Date.now() : a[3]
+      var b3 = (b[3] == 0) ? Date.now() : b[3]
+      return a3-b3
+    })
+    
+    console.log('sorted dict', roundDict.map(e=>e[0]+'-'+e[3]))
+    if (fullDict==globDict.sentences) roundDict = [randEl(roundDict)]
+    if (maxphrases) roundDict=roundDict.slice(0,maxphrases)
+    //roundDict=roundDict.slice(0,1) //!remove
+    roundDict = roundDict.filter(e=> {
+      console.log('write word',e[0])
+      var matrixCopy = matrix.map(e=>e.slice())
+      var result = e[0].split(' ').reduce((res,e)=>{
+        let r = Math.floor(Math.random()*h)
+        let c = Math.floor(Math.random()*w)
+        let d = 0 //randEl([0,1,2,3])
+        return res*=writeWord(r,c,d,e)  },true)
+      if (result) return true
+      matrix = matrixCopy
+      return false
+    })
+  }
+  writeWords()
+  console.log(matrix.map(e=>e.join(' ')).join('\n'))
+  roundDict = fullDict.filter(e=>roundDict.findIndex(ee=>ee[0]==e.phrase)>-1)
+  console.log(roundDict)
+
+  //retry logic in case of no one phrase couldn't be written
+  if (roundDict.length==0) {
+    generateCharGrid.tryNum = generateCharGrid.tryNum + 1 || 1
+    if (generateCharGrid.tryNum > 9) {
+      alert(`couldn't generate charGrid`)
+      return }
+    return generateCharGrid(w,h,fullDict) }// 2nd try
+  generateCharGrid.tryNum = 0
+
+  return {charGrid:matrix, roundDict:roundDict}
+}
+  
+</script>
+<script> // DICT
+
+globDict = {
+  words:`
+    ADAMANT - НЕУСТУПЧИВЫЙ
+    ARDUOUS - ТРУДОЕМКИЙ
+    BENIGN - ДОБРОКАЧЕСТВЕННЫЙ
+    CANDID - ОТКРОВЕННЫЙ
+    CLINCH - ЗАКРЕПИТЬ
+    COERCE - ПРИНУЖДАТЬ
+    CONDONE - СМИРЕННО ПРИНИМАТЬ
+    CONFOUND - СМУЩАТЬ
+    DISCERN - РАЗЛИЧАТЬ
+    DOCILE - ПОКЛАДИСТЫЙ
+    EMULATE - ПОДРАЖАТЬ
+    EULOGY - ПАНЕГИРИК
+    FLUKE - СЧАСТЛИВАЯ СЛУЧАЙНОСТЬ
+    GARNER - СОБИРАТЬ
+    JUNCTURE - СОЧЕТАНИЕ
+    LETHARGIC - ВЯЛЫЙ
+    LULL - ЗАТИШЬЕ
+    MIRED - ЗАТЯНУТЫЙ
+  `,
+  phrases: `
+    ADAMANT ATTITUDE - НЕПРЕКЛОННОЕ ОТНОШЕНИЕ
+    ARDUOUS ADVENTURE - ТРУДНОЕ ПРИКЛЮЧЕНИЕ
+    BENIGN BEHAVIOR - ДОБРОЕ ПОВЕДЕНИЕ
+    CANDID COMMENT - ИСКРЕННИЙ КОММЕНТАРИЙ
+    CLINCH THE DEAL - ЗАКЛЮЧИТЬ СДЕЛКУ
+    COERCE WITH FORCE - ПРИНУЖДАТЬ СИЛОЙ
+    CONDONE THE MISTAKE - ПРОСТИТЬ ОШИБКУ
+    CONFOUND THE CROWD - СБИТЬ С ТОЛКУ ТОЛПУ
+    DISCERN THE TRUTH - РАЗЛИЧИТЬ ПРАВДУ
+    DOCILE DOG - ПОСЛУШНАЯ СОБАКА
+    EMULATE THE GREAT - ПОДРАЖАТЬ ВЕЛИКИМ
+  `,
+  sentences: `
+    LET’S MOVE ON TO THE NEXT POINT ON OUR AGENDA. - ДАВАЙТЕ ПЕРЕЙДЕМ К СЛЕДУЮЩЕМУ ПУНКТУ НАШЕЙ ПОВЕСТКИ.
+    COULD YOU PLEASE CLARIFY WHAT YOU MEAN BY THAT? - НЕ МОГЛИ БЫ ВЫ ПРОЯСНИТЬ, ЧТО ИМЕННО ВЫ ИМЕЕТЕ В ВИДУ?
+    I APPRECIATE YOUR INPUT, BUT I SEE IT A BIT DIFFERENTLY. - Я ЦЕНЮ ВАШЕ МНЕНИЕ, НО ВИЖУ ЭТО НЕМНОГО ПО-ДРУГОМУ.
+    LET'S CIRCLE BACK TO THIS LATER. - ДАВАЙТЕ ВЕРНЕМСЯ К ЭТОМУ ПОЗЖЕ.
+    I SEE YOUR POINT, BUT WE NEED TO CONSIDER OTHER FACTORS AS WELL. - Я ПОНИМАЮ ВАШУ ТОЧКУ ЗРЕНИЯ, НО НАМ ТАКЖЕ НУЖНО УЧЕСТЬ ДРУГИЕ ФАКТОРЫ.
+    WE NEED TO WRAP THIS UP, BUT WE CAN CONTINUE THE DISCUSSION IN OUR NEXT MEETING. - НАМ НУЖНО ЗАВЕРШАТЬ, НО МЫ МОЖЕМ ПРОДОЛЖИТЬ ОБСУЖДЕНИЕ НА СЛЕДУЮЩЕМ СОБРАНИИ.
+    LET ME REPHRASE THAT TO MAKE SURE WE'RE ON THE SAME PAGE. - ПОЗВОЛЬТЕ МНЕ ПЕРЕФРАЗИРОВАТЬ, ЧТОБЫ УБЕДИТЬСЯ, ЧТО МЫ ПРАВИЛЬНО ПОНИМАЕМ ДРУГ ДРУГА.
+    I'LL FOLLOW UP WITH YOU ON THIS BY EMAIL. - Я СВЯЖУСЬ С ВАМИ ПО ЭТОМУ ВОПРОСУ ПО ПОЧТЕ.
+    THANK YOU FOR YOUR TIME, I REALLY APPRECIATE YOUR FEEDBACK. - СПАСИБО ЗА ВАШЕ ВРЕМЯ, Я ОЧЕНЬ ЦЕНЮ ВАШИ КОММЕНТАРИИ.
+  `
+}
+for (let key in globDict) {
+  globDict[key]=globDict[key].split('\n').filter(e=>e.trim().length>3).map(e=>({
+    phrase: e.trim().split(' - ')[0],
+    transl: e.trim().split(' - ')[1],
+    stage: 0,
+    nextDate: 0,
+    successScore: 0,
+    errorScore: 0,
+    damaged: 0
+  }))
+}
+
+let loadLocalDataToDict = () => {
+  for (let name in globDict) {
+    if (localData.get(name)) {
+      let localDict = localData.get(name)
+      if (localDict.length != globDict[name].length) {
+        alert(`localData length inconsistency ${name} ${localDict.length} 
+          ${globDict[name].length}`)
+      } else {
+        globDict[name] = globDict[name].map((e,i) => ({
+          phrase: e.phrase,
+          transl: e.transl,
+          stage: localDict[i].stage,
+          nextDate: localDict[i].nextDate,
+          successScore: localDict[i].successScore,
+          errorScore: localDict[i].errorScore,
+          damaged: localDict[i].damaged
+        }))
+      }
+    }
+  }
+}
+</script>
+<script>//CRAZY LOG CONSOLE
+document.body.insertAdjacentHTML('afterbegin',
+  `<div id="service" style="display:none; position:fixed; background:#ffffffaa; z-index:999; right:0; bottom:0" onclick="service()">⚙️</div>`)
+document.oncontextmenu = e=> document.querySelector('#service').style.display=''
+let service = ()=> {
+  let commands = [
+    `window.open().document.write('<xmp>'+document.body.innerHTML)`,
+    `localStorage.service=''`
+  ]
+  if (localStorage.service) commands = JSON.parse(localStorage.service).commands
+  let showPrompt = cmdInd=> {
+    let p=prompt(commands.map((e,i)=>i+'♦'+e).join('\n'),commands[cmdInd] || '')
+    if (commands[p]) showPrompt(p)
+    else if (p.charAt(0)=='-' && commands[-p]) {
+      commands.splice(-p,1)
+      localStorage.service = JSON.stringify({commands:commands})
+      showPrompt()
+    } else if (p==''){
+      return
+    } else {
+      try {
+        if(!commands.includes(p)) {
+          commands.push(p)
+          localStorage.service = JSON.stringify({commands:commands})
+        }
+        eval(p) 
+      } catch(err){
+        eval(prompt(err,p))
+      }
+    }
+  }
+  showPrompt()
+}
+let printhtml=()=>window.open().document.write('<xmp>'+document.body.innerHTML)
 </script>
 </html>
