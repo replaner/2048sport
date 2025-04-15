@@ -14,6 +14,7 @@
     }
     html, body { 
       height:100%;
+      background:#c6ffdd;
     }
     .background {
       display: flex;
@@ -23,7 +24,7 @@
       min-height: 100%;
       background: linear-gradient(45deg, #f7797d, #fbd786, #c6ffdd);
     }
-    .gameel {
+    .gameEl {
       display: grid;
       place-items: center; 
       align-content: space-evenly;
@@ -31,14 +32,14 @@
       width: 100vw;
       max-width: 55cqh;
       container-type: inline-size;
-      font-family: sans-serif
+      font-family: sans-serif;
     }
     @keyframes bounce {
-      0% {transform-origin:50% 100%; scale: 1; transform: skew(0deg, 0deg); rotate: .9deg; }
-      25% {transform-origin:50% 100%; scale: 1.01 1.15; transform:skew(5deg, 0deg)}
-      50% {transform-origin:50% 100%; scale: 1; transform: skew(0deg, 0deg); rotate: -.9deg; }
-      75% {transform-origin:50% 100%; scale: 1.01 1.25; transform: skew(-1deg, 0deg) }
-      100% {transform-origin:50% 100%; scale: 1; transform: skew(0deg, 0deg); rotate: .9deg; }
+      0%, 25%, 50%, 75%, 100% {transform-origin:50% 100%; }
+      0%, 100% {scale:1; transform:skew(0deg, 0deg); }
+      25% {scale:1.01 1.15; transform:skew(5deg, 0deg)}
+      50% {scale:1; transform:skew(0deg, 0deg); rotate:-1deg; }
+      75% {scale:1.01 1.25; transform:skew(-1deg, 0deg) }
     }
     @keyframes shimmer {
       0% { filter: brightness(1.2) }
@@ -49,538 +50,73 @@
 </head>
 <body>
   <div class="background">
-    <div class="gameel"></div>
+    <div class="gameEl"></div>
   </div>
 </body>
 
 <script>
-  let charGrid = 'ABCDEX KLMNOY FGHIJX KLMNOY PQRSTZ UVWXYF UVWXYF Z⬤⬤⬤G⬤ WGXYZ⬤ KLMNOY'.split(' ').map(e=>e.split(''))
-  console.log('charGrid',charGrid)
-</script>
+/*  
 
-<script>
-let node = (...parent_html) => {
-  let template = document.createElement('template')
-  template.innerHTML = parent_html.at(-1)
-  let el = template.content.firstElementChild
-  if (parent_html.length==2) parent_html[0].append(template.content)
-  return el
-}
+Explanation of execution order:
+- onload
+  - loadProgressToDict()
+  - gameSeries() - shows list of series with play buttons to start gameRound
+- gameRound(dictName)
+  - generateCharGrid() from chosen dictName => {charGrid, roundDict}
+  - generateRoundTask(roundDict) => roundTask
+  - add topbar(), phraseBoard(), tileBoard()
+  - checkWord() checks every 
+    - if correct: show quizPopup
+      - if correct: mark on phraseBoard; check if Win
+      - else: remove lines from tileBoard
+    - win() - show emoji burst and reload page
 
-let gameel = document.querySelector('.gameel')
+Data models:
+- globDict:{words:dict, phrases:dict, sentences:dict}
+- dict:[{phrase, transl, stage, errorScore, successScore, nextDate, damaged}]
+- generateRoundTask(dict)=> {ordered:bool, tasks}
+- tasks: [{phraseWords:['str'], phraseMask:bool, transl:'str', 
+  translMask:bool, striked:bool }]
 
-let init =()=> {
-  loadLocalDataToDict()
-  gameSeries1()
-  return;
-  //newQuizPopup('Welcome to the game!', ['Hello!', 'let','us','play!']).show()
-  //return
-  let {charGrid,roundDict} = generateCharGrid(9,14,globDict.words)
-  //topbar()
-  //topbar.progress(2,5)
-  //console.log('globDict',globDict)
-  //newPhraseBoard({whratio:3, tasks:generateRoundTask(roundDict).tasks})
-  //gameel.append(newTileBoard(charGrid).el)
-  gameRound('phrases')
-  
-}
-onload = ()=> init()
-//let gameel = document.querySelector('.gameel')
+*/
 
-var randEl = arr=> arr[Math.floor((Math.random()*arr.length))]
-var greenColors = ['fff',"FDFC96","E4F78F","BFEF88","97E47E","79DC78","A3CF3B","F7AD20","F29124","EC6B27","ffff3f"]
+//= CONFIG, INIT ===============================================================
 
-let synthSpeech = (str='HELLO') =>{
-  let utterance = new SpeechSynthesisUtterance(str.toLowerCase())
-  speechSynthesis.speak(utterance);
-}
+let gameEl = document.querySelector('.gameEl')
 
-let gameSeries1 = ()=> {
-  let container = document.createElement('div')
-  //container.style.background = '#ddd'
-  let bubble = ({phrase,transl,stage,errorScore,successScore,nextDate,damaged}) => {
-    console.log({phrase,transl,stage,errorScore,successScore,nextDate,damaged})
-    let el = document.createElement('div')
-    el.style = `font-size:3cqw; border-radius:2cqw; border:.1cqw solid #555; display:inline-block; padding:1cqw; margin:.2cqw;`
-    el.style.background = '#'+greenColors[stage]
-    el.innerHTML = phrase    
-    if (nextDate != 0 && nextDate < Date.now()) el.style.animation = `bounce ${Math.random() * .3 + 0.6}s infinite`
-    else if (nextDate != 0) {
-      el.style.animation = `shimmer ${Math.random() * 1 + 3}s infinite`
-      let share = intervalShare(stage,nextDate)
-      el.style.background = `linear-gradient(-90deg, #${greenColors[stage-1]} ${share}, #${greenColors[stage]} ${share})`
-    }
+let colors = ['fff','FDFC96','E4F78F','BFEF88','97E47E','79DC78','A3CF3B',
+  'F7AD20','F29124','EC6B27','ffff3f']
 
-    if (successScore) el.innerHTML+= ' '+successScore+'·'+errorScore
-    if (damaged) el.style.boxShadow = 'inset 0 0 .3em .1em red'
-    el.onclick = e=> {
-      synthSpeech(phrase)
-    }
-    return el
-  }
- 
-  let bubblebox = (title,dictName,open) => {
-    //open=1
-    let boxEl = document.createElement('div')
-    boxEl.style = 'background:#00000055; border-radius:2rem; text-align:center; padding:3cqw 1cqw; margin:1em; position:relative;'
-    boxEl.style.fontFamily = 'Trebuchet MS, sans-serif'
-    boxEl.insertAdjacentHTML('afterbegin',
-      `<div style="font-size:3cqw; color:white; padding:1cqw">${title}</div>`)
-    
-    let progressbar = node(boxEl,`\n<div class="progressbar" style="padding:.3em; border-radius:1em; white-space:pre; line-height:1em; display:flex;  align-items:center; justify-content:center;"/>`)
+onload = ()=> { loadProgressToDict(); gameSeries(); /*vfxFlyCloud(100,100,200,200);*/ }
 
-    for (let i=0;i<Math.max(9,maxStage(dictName));i++) progressbar.append(progressEl({
-      str: i==5 ? '🔓' : '',
-      big: i <= minStage(dictName) && open ? 1 : 0,
-      color: (i <= maxStage(dictName) && open) ? '#'+greenColors[i] : ''}))  
 
-    globDict[dictName].forEach(e=>boxEl.append(bubble(e)))
+//= GAME DATA PREPARATION ======================================================
 
-    if (!open) boxEl.insertAdjacentHTML('afterbegin',`
-      <div style="background:#00000077; position:absolute;inset:0;  border-radius:2rem; font-size:15cqw; display:flex; justify-content: center;align-items: center">🔒</div> 
-    `)
-    else {
-      //boxEl.insertAdjacentHTML('beforeend', '<div style="font-size:2rem">30 words ready!</div>')
-      let readyWords = globDict[dictName].filter(e=>e.nextDate==0).length
-      let eagerWords = globDict[dictName].filter(e=>e.nextDate!=0 && e.nextDate<Date.now()).length
-      let  readyTime = globDict[dictName].map(e=>e.nextDate).filter(e=>e).sort()[4]
-      let timestampToDHM = t => {
-        let d = Math.floor(t/(1000*60*60*24))
-        let h = Math.floor(t/(1000*60*60)) % 24
-        let m = Math.floor(t/(1000*60)) % 60
-        if (d==0 && h==0) return `${m}мин`
-        if (d==0) return `${h}ч ${m}мин`
-        return `${d}д ${h}ч`  
-      }
-      let btnText
-      if (eagerWords>4) btnText = `Жаждут тренировки ${eagerWords}<br>Играть`
-      else if (readyWords+eagerWords>4) btnText = `Готовы к тренировке ${readyWords+eagerWords}<br>Играть`
-      else btnText = `Слова готовятся, нужно минимум 5.<br>Приходите через ${timestampToDHM(readyTime-Date.now())}`
 
-      let btn = document.createElement('div')
-      btn.style = "background:lightgray; border-radius:2em; font-size:3cqw; padding:1em; margin:1em 1em 0 1em"
-      btn.innerHTML = btnText
-      boxEl.append(btn)
-      if (readyWords+eagerWords>4) btn.style.background = 'lightgreen'
-      btn.onclick = ()=> {
-        container.remove()
-        gameRound(dictName) }
-      
-    } 
-    return boxEl
-  }
-  let minStage = dictName => Math.min(...globDict[dictName].map(e=>e.stage))
-  let maxStage = dictName => Math.max(...globDict[dictName].map(e=>e.stage))
-  localData.set('opengames', Math.max(
-    localStorage.opengames || 1,
-    minStage('words')>4 ? 2 : 0, 
-    minStage('phrases')>4 ? 3 : 0 ) )
-  container.append(bubblebox('WORDS','words',localData.get('opengames')>0))
-  container.append(bubblebox('PHRASES','phrases',localData.get('opengames')>1))
-  container.append(bubblebox('SENTENCES','sentences',localData.get('opengames')>2))
-  gameel.append(container)
-  return container
-}
-
-function createEmojiBurst(x,y) {
-    const emojis = ["🎉", "🔥", "✨", "💥", "🎈", "🎊", "💫", "❤️"];
-    const numEmojis = 15;
-    const centerX = window.innerWidth / 2;
-    const centerY = window.innerHeight / 2;
-
-    for (let i = 0; i < numEmojis; i++) {
-        const emoji = document.createElement("div");
-        emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-        gameel.appendChild(emoji);
-
-        // Random movement
-        const angle = Math.random() * Math.PI * 2;
-        const distance = 100
-        const xMove = Math.cos(angle) * distance;
-        const yMove = Math.sin(angle) * distance;
-
-        // Set styles
-        Object.assign(emoji.style, {
-            position: "absolute",
-            left: `${centerX}px`,
-            top: `${centerY}px`,
-            fontSize: "3rem",
-            pointerEvents: "none",
-            userSelect: "none",
-            transition: "transform 1s ease-out, opacity 1s",
-        });
-
-        // Trigger animation after a small delay
-        requestAnimationFrame(() => {
-            emoji.style.transform = `translate(${xMove}px, ${yMove}px) scale(0.5)`;
-            emoji.style.opacity = "0";
-        });
-
-        // Remove after animation
-        setTimeout(() => emoji.remove(), 1000);
-    }
-}
-var newQuizPopup = (message, options, callback) => {
-  var result = { 
-    show: ()=> backdrop.style.opacity = 1, 
-    hide: ()=> backdrop.remove() }
-
-  var backdrop = node(gameel,`\n<div class="backdrop" style="position:fixed; left:0; top:0; width:100%; height:100%; display:grid; place-items:center; backdrop-filter: blur(2cqw);"/>`)
-  
-  var popup = node(backdrop,`\n<div class="popup" style="margin:5%; text-align:center; font-size:5cqw; background:#fff; padding:5cqw; border-radius:3cqw; box-shadow:0 0 2cqw rgba(0,0,0,0.5); display:inline-block; transition: all .2s ease-in;">${message}</div>`)
-
-  var addOption = text => {
-    let option = node(popup,`\n<div class="option" style="padding:3cqw; border-radius:3cqw; background:#ddd; cursor:pointer; margin:3cqw;">${text}</div>`)
-    setTimeout(() => { //to avoid false click
-      option.onclick = ()=> {
-        result.hide()
-        callback(text) }
-    }, 300);
-  }
-  options.forEach(e=> addOption(e))
-  result.show()
-  return result
-}
-
-let nextDate = stage => {
-  let minRepititionInterval = 1000*60*10
-  let intervalMultiplier = 3
-  return Date.now() + minRepititionInterval * Math.pow(intervalMultiplier,stage-1) }
-let intervalShare = (stage, nextDate) => {
-  let minRepititionInterval = 1000*60*10
-  let intervalMultiplier = 3
-  return (nextDate - Date.now()) / (minRepititionInterval * Math.pow(intervalMultiplier,stage-1))*60+20 + '%'
-}
-
-var gameRound = (dictName,round)=> {
-
-  var randTranslations = (transl,amountOfWrongOpts=3)=> {
-    var res = roundDict.map(e=>e.transl).filter(e=>e!=transl).sort(()=>Math.random()-.5).slice(0,amountOfWrongOpts)
-    res.push(transl)
-    return res.sort(()=>Math.random()-.5)  
-  }
-  topbar()
-  var {charGrid, roundDict} = generateCharGrid(8,10,globDict[dictName],99)
-  let roundTask = generateRoundTask(roundDict)
-  console.log('roundTask', roundTask)
-  if (dictName=='sentences') {
-    round = round || 1
-    topbar.progress(round,5)
-    var phraseBoard = newPhraseBoard({whratio:3,tasks:roundTask.tasks})   
-  } else {
-    var phraseBoard = newPhraseBoard({whratio:3,tasks:roundTask.tasks})    
-  }
-
-  var tileBoard = newTileBoard(charGrid)
-  
-  let pi = roundTask.ordered ? 0 : -1, //phrase index
-      wi = 0; //word index
-
-  let win = () => {
-    
-    //localStorage[dictName] = JSON.stringify(globDict[dictName])
-    localData.set(dictName, globDict[dictName])
-    if (round<5) {
-      gameel.innerHTML=''
-      gameRound(dictName,round+1)
-    } else {
-      createEmojiBurst()
-      newQuizPopup('💪🎉🧠',['WIN !'],str=>location.reload())
-      document.createElement('div')
-    }
-  }
-  if (roundTask.ordered) phraseBoard.highlightItem(0)
-
-  tileBoard.onLineDrawn = word => {
-    if (pi==-1) pi = roundTask.tasks.findIndex(e=>e.phraseWords[0]==word && !e.striked)
-    if (pi>-1) {
-      let task = roundTask.tasks[pi]
-      if (word == task.phraseWords[wi]) {
-        console.log('onLineDrawn right word',word)
-        phraseBoard.strikeWord(pi, wi)
-        phraseBoard.highlightItem(pi)
-        wi++
-        if (task.phraseWords.length == wi) {
-          synthSpeech(roundDict[pi].phrase)
-          newQuizPopup(roundDict[pi].phrase, randTranslations(roundDict[pi].transl, roundDict[pi].stage),selectedOption => {
-            if (selectedOption == roundDict[pi].transl){
-              phraseBoard.strikePhrase(pi)
-              task.striked = true
-              roundDict[pi].nextDate = nextDate(roundDict[pi].stage += 1)
-              roundDict[pi].successScore++
-              roundDict[pi].damaged = Math.max(roundDict[pi].damaged-1,0)
-              console.log(roundDict)
-              if (!roundTask.tasks.find(e=>!e.striked)) win()
-              else if (roundTask.ordered) phraseBoard.highlightItem(pi += 1)
-              else pi = -1
-            } else {
-              tileBoard.removeLines(task.phraseWords.length)
-              phraseBoard.damageItem(pi)
-              roundDict[pi].damaged = 2
-              synthSpeech('duh')
-              roundDict[pi].errorScore++
-              roundDict[pi].stage = Math.max(0, roundDict[pi].stage-2)
-              roundDict[pi].nextDate = nextDate(roundDict[pi].stage)
-            }       
-            wi = 0
-          })
-        }
-        return
+let loadProgressToDict = () => {//from localStorage to each dict of globDict
+  for (let name in globDict) {
+    if (localData.get(name)) {
+      let localDict = localData.get(name)
+      if (localDict.length != globDict[name].length) {
+        alert(`localData length inconsistency ${name} ${localDict.length} 
+          ${globDict[name].length}`)
+      } else {
+        globDict[name] = globDict[name].map((e,i) => ({
+          phrase: e.phrase,
+          transl: e.transl,
+          stage: localDict[i].stage,
+          nextDate: localDict[i].nextDate,
+          successScore: localDict[i].successScore,
+          errorScore: localDict[i].errorScore,
+          damaged: localDict[i].damaged
+        }))
       }
     }
-    tileBoard.removeLines(1)
   }
 }
 
-let topbar = ()=> {
-  topbar.progress = (num,total)=> {
-    midEl.innerHTML = ''
-    for(let i=0; i<num; i++) midEl.append(progressEl({color: 'lightgreen',big:1,str:''}))
-    for(let i=0; i<total-num; i++) midEl.append(progressEl({color: '',big:0,str:''}))
-  }
 
-  let el = node(gameel,`\n<div class="topbar" style="background:#eee; width:98%; margin:0%; border-radius:2cqw; display:flex; justify-content:space-between; flex-wrap:wrap; gap:1em; padding:.5em; font-size:3cqw; position:relative;"></div>`)
-
-  let leftEl = node(el,`\n<div class="leftEl" style="padding:.3em; border-radius:1em; white-space:pre; line-height:1em; display:flex; background:#f5fdff; align-items:center;"> ☰ </div>`)
-
-  let midEl = node(el,`\n<div class="midEl" style="padding:.3em; border-radius:1em; white-space:pre; line-height:1em; display:flex; background:#f5fdff; align-items:center;"/>`)
-
-  let rightEl = node(el,`\n<div class="rightEl" style="padding:.3em; border-radius:1em; white-space:pre; line-height:1em; display:flex; background:#f5fdff; align-items:center;"> SCORE </div>`)
-
-  // midEl.append(progressEl({color: 'lightgreen',big:1,str:''}))
-  // midEl.append(progressEl({color: '',big:1,str:''}))
-  // midEl.append(progressEl({color: 'lightgreen',big:0,str:''}))
-  // midEl.append(progressEl({color: 'lightgreen',big:0,str:'🔒'}))
-  // midEl.append(progressEl({color: '',big:0,str:''}))
-  // midEl.append(progressEl({color: '',big:0,str:'🔒'}))
-  // midEl.append(progressEl({color: '',big:0,str:''}))
-}
-
-let progressEl = ({color,big,str})=> {
-  let el = node(`<div class="progressel" style="font-size:3cqw; padding:1cqw;  
-    border-radius:100%; border:.2cqw solid #555; display:flex; line-height:4cqw;
-    justify-content:center; align-items:center; margin:.5cqw;"/>`)
-  if (big) {
-    el.style.width = el.style.height = '4cqw'
-    if (color) el.style.background = color
-    return el
-  } 
-  if (str) {
-    el.innerHTML = str
-    el.style.width = el.style.height = '3cqw'
-    el.style.border = ``
-    if (color) {
-      el.style.width = el.style.height = '3cqw'
-      el.style.border = ``//.3rem solid ${color}`
-    } else el.style.filter = 'grayscale(1)'
-  } else {
-    el.style.width = el.style.height = '1cqw'
-    if (color) el.style.background = color
-  }
-  return el
-} 
-
-let getLineFromGrid = (r1,c1,r2,c2,grid)=> {
-  let dr = r2==r1 ? 0 : r2>r1 ? 1 : -1,
-      dc = c2==c1 ? 0 : c2>c1 ? 1 : -1,
-      len = Math.max(Math.abs(r2-r1), Math.abs(c2-c1)) + 1
-  return Array(len).fill(0).map((e,i) => grid[r1+i*dr][c1+i*dc])
-} 
-
-let newTileBoard = chGrid => {
-  result = {
-    el: svg = node(`<svg style="background:#ffffff88; border-radius:2cqw; outline:none; max-width:96cqw; max-height:70cqh;"/>`),
-    onLineDrawn: selectedWord => {alert(selectedWord)}, 
-    removeLines: num => { lineArr.splice(-num,num).forEach(e=>e.remove()) }, 
-    remove: () => svg.remove()  }
-
-  //svg.style= `background:#ffffff88; border-radius:2cqw; outline:none; max-height:138cqw;`
-  svg.setAttribute('viewBox',`0 0 ${chGrid[0].length*10} ${chGrid.length*10}`)
-  svg.setAttribute('font-size', 5)
-  svg.setAttribute('font-weight', 'bold')
-  svg.setAttribute('text-anchor', 'middle')
-  svg.setAttribute('fill', '#555')
-  svg.setAttribute('font-family', 'sans-serif')
-
-  //crazy adding letters
-  chGrid.forEach((r,ir)=>r.forEach((c,ic)=>svg.insertAdjacentHTML('beforeend',
-  `\n<text x="${ic*10+5}" y="${ir*10+6.8}" opacity="${c=='⬤'?.3:1}">${c}</text>`
-  )))
-
-  let c1, r1, c2, r2, dir, line = null, lineArr = [], pt = svg.createSVGPoint()
-  let pointerEventToSvgCR = ev => {
-    pt.x = ev.clientX; pt.y = ev.clientY;
-    pt = pt.matrixTransform(svg.getScreenCTM().inverse())
-    return [ Math.round((pt.x-5)/10), Math.round((pt.y-5)/10) ]
-  }
-  svg.onpointerdown = e=> {
-    svg.onblur();
-    [c1, r1] = [c2, r2] = pointerEventToSvgCR(e)
-    if (c1<0 || c1>=chGrid[0].length || r1<0 || r1>=chGrid.length) return
-    
-    line = document.createElementNS("http://www.w3.org/2000/svg",'polyline')
-    line.setAttribute('stroke-linecap','round')
-    line.setAttribute('stroke','white')
-    line.setAttribute('stroke-width', 7)
-    line.setAttribute('opacity', .5)
-    line.setAttribute('points', `${c1*10+5},${r1*10+5} ${c2*10+5},${r2*10+5}`)
-    svg.querySelector('text').before(line,'\n')
-    lineArr.push(line)
-  }
-  document.onmousemove = document.ontouchmove = e=> {
-    if (!line) return
-    if (e.touches) e = e.touches[0]
-    let [c, r] = pointerEventToSvgCR(e)
-    if (c2==c && r2==r) return   
-
-    /*sticky line approximation*/
-    if (c1==c) dir = 'vertical'
-    else if (r1==r) dir = 'horizontal'
-    else if ((c1-c)==(r1-r)) dir = 'diagonal left'
-    else if ((c1-c)==(r-r1)) dir = 'diagonal right'
-    if (dir == 'vertical') c = c1
-    else if (dir == 'horizontal') r = r1
-    else if (dir == 'diagonal left') r = r1 + (c-c1)
-    else if (dir == 'diagonal right') r = r1 - (c-c1)
-    else return //*/
-
-    if (c<0 || c>=chGrid[0].length || r<0 || r>=chGrid.length) return    
-    [c2, r2] = [c, r] 
-    line.setAttribute('points', `${c1*10+5},${r1*10+5} ${c2*10+5},${r2*10+5}`)
-  }
-  document.onmouseup = document.ontouchend = svg.onblur = e=> {
-    if (!line) return
-    result.onLineDrawn(getLineFromGrid(r1,c1,r2,c2,chGrid).join(''))
-    line = null
-  }
-  gameel.append('\n',svg,'\n')
-  return result
-}
-
-var generateRoundTask = dict => {
-  /*{ordered:bool, 
-     tasks: [{phraseWords: ['str'],
-              phraseMask: bool, 
-              transl: 'str', 
-              translMask: bool, 
-              ordered: bool }]} */
-  return {ordered: dict.find(e=>e.stage<6) ? 0 : 1, tasks: dict.map(e => {
-    let phraseMask, translMask;
-    if (e.stage == 0) [phraseMask, translMask] = [0, 1]
-    if (e.stage == 1) [phraseMask, translMask] = [0, 1]
-    if (e.stage == 2) [phraseMask, translMask] = [1, 0]
-    if (e.stage == 3) [phraseMask, translMask] = [1, 0]
-    if (e.stage == 4) [phraseMask, translMask] = [1, 1]
-    if (e.stage == 5) [phraseMask, translMask] = [1, 1]
-    if (e.stage > 5 ) [phraseMask, translMask] = [1, 0]
-    return {
-      phraseWords: e.phrase.match(/[\w’']+|[^\s\w]/g),
-      phraseMask: phraseMask,
-      transl: e.transl,
-      translMask: translMask,
-      striked: false 
-    }
-  })}
-}
-
-let newPhraseBoard = ({whratio,tasks}) => {  
-  let result = {
-    strikePhrase: (pi, color='lightgreen') => {
-      result.highlightItem()
-      items[pi].phraseEls.forEach(e=> e.style.filter = e.style.color = '') 
-      items[pi].translEl.style.filter = ''
-      items[pi].el.style.color = 'black'
-      items[pi].el.style.background = color
-      items[pi].el.style.animation = `bounce 0.5s`
-    }, 
-    strikeWord: (pi,wi) => {
-      items[pi].phraseEls[wi].style.color = 'yellow'
-      items[pi].phraseEls[wi].style.filter = ''
-    },
-    highlightItem: (pi=-1) => {
-      items.forEach(e=> e.el.style.borderColor = `#555`)
-      if (pi>-1) items[pi].el.style.borderColor = 'lightgreen' 
-    },
-    damageItem: pi => {
-      items[pi].el.style.boxShadow = 'inset 0 0 .3em .1em red'
-      items[pi].phraseEls.forEach(e=> e.style.color = '')
-      if (tasks[pi].phraseMask) items[pi].phraseEls.forEach(e=> e.style.filter = 'blur(.3em)')
-    }, 
-    showTranslation: pi => {
-      items[pi].translEl.style.filter = ''
-    }, 
-    remove: ()=> container.remove()
-  }
-  let items = [] // [{el:el, phraseEls: [el], translEl:el}]
-  let newItem = task=> {
-    let span = ({word, mask, isTransl})=> {
-      let s = node(`<span>${('.,!?-'.includes(word) ? '' : ' ')+word}</span>`)
-      if (mask) s.style.filter = 'blur(.3em)'
-      if (isTransl) s.style.fontSize = '.8em'
-      else s.style.fontWeight = 'bold'
-      return s 
-    }
-    let el = document.createElement('div')
-    el.style.userSelect = 'auto'
-    el.style.background = '#777'//'linear-gradient(#999, #777)'//'#999'
-    el.style.color = 'white'//'#333'
-    el.style.padding = `.3em .5em`
-    el.style.margin = `.1em`
-    el.style.borderRadius = '1.2em'
-    el.style.lineHeight = '0.9'
-    el.style.border = `.1em solid #555555`
-    let item = {
-      phraseEls: task.phraseWords.map(e=>span({word:e, mask:task.phraseMask})),
-      translEl: span({word:task.transl, mask:task.translMask, isTransl:1}),
-      el: el
-    }
-    items.push(item)
-    el.append(...item.phraseEls)
-    el.append(document.createElement('br'))
-    el.append(item.translEl)
-    container.append(el)
-  }  
-  let adaptFontSize = (startSize,unit)=> {
-    do container.style.fontSize = (startSize*=.95) + unit
-    while (container.scrollHeight > container.clientHeight)
-  }
-  let container = document.createElement('div')
-  container.style = `width:100%; aspect-ratio:${whratio}; display:flex; flex-wrap:wrap; justify-content:center; align-items:center; align-content:center; text-align:center; overflow:hidden`
-  gameel.append(container)
-
-  tasks.forEach(e=> newItem(e))
-  adaptFontSize(4,'cqw')
-  console.log('phraseBoard items',items)
-  return result
-}
-let localData = {
-  gameId: '1-searchlines',
-  set: (key, value) => {
-    let data = {}
-    if (localStorage.getItem(localData.gameId)) {
-      data = JSON.parse(localStorage.getItem(localData.gameId))
-    }
-    data[key] = value
-    localStorage.setItem(localData.gameId, JSON.stringify(data))
-  },
-  get: key => {
-    if (localStorage.getItem(localData.gameId)) {
-      let data = JSON.parse(localStorage.getItem(localData.gameId))
-      return data[key]
-    }
-    return null
-  },
-  remove: key => {
-    if (localStorage.getItem(localData.gameId)) {
-      let data = JSON.parse(localStorage.getItem(localData.gameId))
-      delete data[key]
-      localStorage.setItem(localData.gameId, JSON.stringify(data))
-    }
-  },
-  clear: () => localStorage.removeItem(localData.gameId)
-}
-
-var generateCharGrid = (w=11,h=11,fullDict,maxphrases)=>{
+let generateCharGrid = (w=11,h=11,fullDict,maxphrases)=>{//returns grid and dict
   let dict = fullDict.map(e=>[e.phrase, e.transl, e.stage, e.nextDate])
   let matrix= new Array(h).fill(0).map(()=> new Array(w).fill('⬤'))
   let directions= [[1,-1],[1,1],[-1,1],[-1,-1],[0,-1],[1,0],[0,1],[-1,0]] 
@@ -620,7 +156,7 @@ var generateCharGrid = (w=11,h=11,fullDict,maxphrases)=>{
     return false
   }
   let writeWords= ()=> { 
-    roundDict = [...dict].sort(()=>Math.random()-.5).sort((a,b)=>{
+    roundDict = [...dict].shuffle().sort((a,b)=>{
       var a3 = (a[3] == 0) ? Date.now() : a[3]
       var b3 = (b[3] == 0) ? Date.now() : b[3]
       return a3-b3
@@ -659,8 +195,575 @@ var generateCharGrid = (w=11,h=11,fullDict,maxphrases)=>{
 
   return {charGrid:matrix, roundDict:roundDict}
 }
+
+
+var generateRoundTask = dict => {//converst dict to model 
+  /*{ordered:bool, 
+     tasks: [{phraseWords: ['str'],
+              phraseMask: bool, 
+              transl: 'str', 
+              translMask: bool, 
+              striked: bool }]} */
+  return {ordered: dict.find(e=>e.stage<6) ? 0 : 1, tasks: dict.map(e => {
+    let phraseMask, translMask;
+    if (e.stage == 0) [phraseMask, translMask] = [0, 1]
+    if (e.stage == 1) [phraseMask, translMask] = [0, 1]
+    if (e.stage == 2) [phraseMask, translMask] = [1, 0]
+    if (e.stage == 3) [phraseMask, translMask] = [1, 0]
+    if (e.stage == 4) [phraseMask, translMask] = [1, 1]
+    if (e.stage == 5) [phraseMask, translMask] = [1, 1]
+    if (e.stage > 5 ) [phraseMask, translMask] = [1, 0]
+    return {
+      phraseWords: e.phrase.match(/[\w’']+|[^\s\w]/g),
+      phraseMask: phraseMask,
+      transl: e.transl,
+      translMask: translMask,
+      striked: false 
+    }
+  })}
+}
+
+
+//= GAME ROUND LOGIC ===========================================================
+
+
+let gameRound = (dictName,round=1)=> {//inits and manages game round
+
+  let {charGrid, roundDict} = generateCharGrid(10,14,globDict[dictName],99)
+  let roundTask = generateRoundTask(roundDict)
+  console.log('roundTask', roundTask)
+
+  topbar()
+  if (dictName=='sentences') topbar.setProgress(round,5)
+  phraseBoard(roundTask.tasks)   
+  tileBoard(charGrid)
   
-</script>
+  let pi = roundTask.ordered ? 0 : -1, //phrase index
+      wi = 0, //word index
+      tasks = roundTask.tasks
+
+  let randTranslations = (transl,wrongOptsNum=3)=> {
+    let res = globDict[dictName].map(e=>e.transl).filter(e=>e!=transl)
+    res = res.shuffle().slice(0,wrongOptsNum)
+    res.push(transl)
+    return res.shuffle()  
+  }
+  let win = () => {   
+    localData.set(dictName, globDict[dictName])
+    if (dictName=='sentences' && round<5) {
+      gameEl.innerHTML=''
+      gameRound(dictName,round+1)
+    } else {
+      quizPopup('💪🎉🧠',['WIN !'],str=>location.reload())
+      createEmojiBurst()
+    }
+  }
+
+  if (roundTask.ordered) phraseBoard.highlightItem(0)
+
+  tileBoard.checkWord = (word) => {//checks word and processes correct word
+    if (pi==-1) pi = tasks.findIndex(e=>e.phraseWords[0]==word && !e.striked)
+    if (pi==-1) return false //to continue drawing line, word is incorrect
+    if (word != tasks[pi].phraseWords[wi]) return false //same 
+
+    console.log('checkWord right word',word)
+    phraseBoard.strikeWord(pi, wi)
+    vfxFlyCloud(...tileBoard.lastTouchXY, ...phraseBoard.wordCenterXY(pi,wi),5)
+    phraseBoard.highlightItem(pi)
+    wi++
+    if (tasks[pi].phraseWords.length == wi) { //all phrase words are open
+      wi = 0
+      synthSpeech(roundDict[pi].phrase)
+      let opts = randTranslations(roundDict[pi].transl, roundDict[pi].stage)
+      quizPopup(roundDict[pi].phrase, opts, selectedOption => {
+        if (selectedOption == roundDict[pi].transl){
+          phraseBoard.strikePhrase(pi)
+          tasks[pi].striked = true
+          roundDict[pi].nextDate = nextDate(roundDict[pi].stage += 1)
+          roundDict[pi].successScore++
+          roundDict[pi].damaged = roundDict[pi].damaged==2 ? 1 : 0
+          if (!tasks.find(e=>!e.striked)) win()
+          else if (roundTask.ordered) phraseBoard.highlightItem(pi += 1)
+          else pi = -1
+        } else {
+          tileBoard.removeLines(tasks[pi].phraseWords.length)
+          phraseBoard.damageItem(pi)
+          synthSpeech('duh')
+          roundDict[pi].damaged = 2 //to keep damaged after correct input
+          roundDict[pi].errorScore++
+          roundDict[pi].stage = Math.max(0, roundDict[pi].stage-2)
+          roundDict[pi].nextDate = nextDate(roundDict[pi].stage)
+        }
+      })
+    }
+    return true //to stop drawing line, word is correct
+  }
+}
+
+
+//= COMPONENTS =================================================================
+
+
+let gameSeries = ()=> {//adds bubble boxes with play round buttons to gameEl
+  let bubble=({phrase,transl,stage,errorScore,successScore,nextDate,damaged})=>{
+
+    let el = $(`<div class="bubble" style="font-size:3cqw; 
+    border-radius:2cqw; border:.1cqw solid #555; display:inline-block; 
+    padding:1cqw; margin:.2cqw; background:#${colors[stage]}"/>`)
+
+    if (nextDate != 0 && nextDate < Date.now())
+      el.style.animation = `bounce ${Math.random() * .3 + 0.6}s infinite` 
+    else if (nextDate != 0) {
+      el.style.animation = `shimmer ${Math.random() * 1 + 3}s infinite`
+      let share = intervalShare(stage,nextDate)
+      el.style.background = `linear-gradient(-90deg, 
+        #${colors[stage-1]} ${share}, #${colors[stage]} ${share})` 
+    }
+    
+    el.innerHTML= phrase + (successScore ? ' '+successScore+'·'+errorScore : '')
+    if (damaged) el.style.boxShadow = 'inset 0 0 .3em .1em red'
+    el.onclick = e=> synthSpeech(phrase)
+    return el
+  }
+  let addBubblebox = (title,dictName,open) => {//open=1
+    let dict = globDict[dictName]
+
+    let boxEl = $(gameEl,`<div class="box" style="background:#00000055; 
+    border-radius:5cqw; text-align:center; padding:3cqw 1cqw; margin:2cqw; 
+    position:relative;"/>`)
+
+      $(boxEl,`<div class="title" style="font-size:5cqw; color:white; 
+      padding:1cqw">${title}</div>`)
+
+      let progressbar = $(boxEl,`<div class="progressbar" 
+      style="padding:1cqw; border-radius:5cqw; white-space:pre; display:flex; 
+      align-items:center; justify-content:center;"/>`)   
+      
+      $(boxEl,`<div class="bubbles"/>`).append(...dict.map(e=>bubble(e)))
+
+      let btn = $(boxEl,`<div class="btn" style="display:none; 
+      background:lightgray; border-radius:2em; font-size:3cqw; padding:1em; 
+      margin:1em 1em 0 1em"/>`)
+
+      let lockover = $(boxEl,`<div class="lockover" 
+      style="position:absolute; background:#00000077; inset:0;  
+      border-radius:5cqw; font-size:15cqw; display:flex; justify-content:center;
+      align-items:center">🔒</div> `)
+
+    if (!open) return boxEl
+    
+    lockover.style.display = 'none'
+    btn.style.display = ''
+    
+    for (let i=0; i<Math.max(9, Math.max(...dict.map(e=>e.stage))); i++) 
+      progressbar.append(progressEl({
+        str: i==5 ? '🔒' : '',
+        big: i <= Math.min(...dict.map(e=>e.stage)) ? 1 : 0,
+        color: i <= Math.max(...dict.map(e=>e.stage)) ? '#'+colors[i] : '' }))
+
+    let readyWords = dict.filter(e=>e.nextDate==0).length
+    let eagerWords = dict.filter(e=>e.nextDate<Date.now()).length - readyWords
+    let readyTime =  dict.map(e=>e.nextDate).filter(e=>e).sort()[4]
+
+    btn.innerHTML = 
+      eagerWords>4 ? `Жаждут тренировки ${eagerWords}<br>Играть` :
+      (readyWords+eagerWords>4) ? 
+      `Готовы к тренировке ${readyWords+eagerWords}<br>Играть` :
+      `Слова готовятся, нужно минимум 5.<br>Приходите через ${
+        timestampToDHM(readyTime-Date.now())}`
+    
+    if (readyWords+eagerWords>4) btn.style.background = 'lightgreen'
+
+    btn.onclick = ()=> {
+      gameEl.querySelectorAll('.box').forEach(e=>e.remove())
+      gameRound(dictName) 
+    }   
+  }
+  localData.set('opengames', Math.max(
+    localData.get('opengames') || 1,
+    Math.min(...globDict['words'].map(e=>e.stage)) > 4 ? 2 : 0, 
+    Math.min(...globDict['phrases'].map(e=>e.stage)) > 4 ? 3 : 0 ) )
+    
+  addBubblebox('WORDS','words',localData.get('opengames')>0)
+  addBubblebox('PHRASES','phrases',localData.get('opengames')>1)
+  addBubblebox('SENTENCES','sentences',localData.get('opengames')>2)
+}
+
+
+let topbar = ()=> {//adds node with menu button and progress bar to gameEl
+  topbar.setProgress = (num,total)=> {
+    midEl.innerHTML = ''
+    for(let i=0; i<total; i++) 
+      midEl.append(progressEl({color: i<num ? 'lightgreen' : '', big: i<num}))
+  }
+
+  let el = $(gameEl,`<div class="topbar" style="background:#eee; width:98%; max-height:5cqh;
+  margin:0%; border-radius:2cqw; display:flex; justify-content:space-between; 
+  flex-wrap:wrap; gap:1em; padding:.5em; font-size:3cqw; position:relative;"/>`)
+
+    let leftEl = $(el,`<div class="leftEl" style="padding:.3em; 
+    border-radius:1em; white-space:pre; line-height:1em; display:flex; 
+    background:#f5fdff; align-items:center;"> ☰ </div>`)
+
+    let midEl = $(el,`<div class="midEl" style="padding:.3em; 
+    border-radius:1em; white-space:pre; line-height:1em; display:flex; 
+    background:#f5fdff; align-items:center;"/>`)
+
+    let rightEl = $(el,`<div class="rightEl" style="padding:.3em; 
+    border-radius:1em; white-space:pre; line-height:1em; display:flex; 
+    background:#f5fdff; align-items:center;"> SCORE </div>`)
+}
+
+
+let progressEl = ({color,big,str})=> {//returns node
+  let el = $(`<div class="progressel" style="font-size:3cqw; padding:1cqw;  
+    border-radius:100%; border:.2cqw solid #555; display:flex; line-height:4cqw;
+    justify-content:center; align-items:center; margin:.5cqw; width:3cqw; 
+    height:3cqw;"/>`)
+  if (big) {
+    el.style.width = el.style.height = '4cqw'
+    if (color) el.style.background = color
+    return el
+  } 
+  if (str) {
+    el.innerHTML = str
+    el.style.border = ``
+    if (!color) el.style.filter = 'grayscale(1)'
+  } else {
+    el.style.width = el.style.height = '1cqw'
+    if (color) el.style.background = color
+  }
+  return el
+} 
+
+
+let tileBoard = charGrid => {//adds svg with all methods to gameEl
+  tileBoard.checkWord= word => {alert(word)}
+  tileBoard.removeLines= num => lineArr.splice(-num,num).forEach(e=>e.remove())
+  tileBoard.remove = () => svg.remove()
+  tileBoard.lastTouchXY = []
+
+  let svg = $(gameEl,`<svg style="background:#ffffff88; border-radius:2cqw; 
+  outline:none; max-width:96cqw; max-height:70cqh;" font-size="5" 
+  font-weight="bold" text-anchor="middle" fill="#555" font-family="sans-serif" 
+  viewBox="0 0 ${charGrid[0].length*10} ${charGrid.length*10}"/>`) 
+
+    let lineGroup = $(svg,`<g stroke-linecap="round" stroke-width="7"/>`)
+
+    charGrid.forEach((r,i)=>r.forEach((c,j)=>$(svg,`<text x="${j*10+5}" 
+    y="${i*10+6.8}" opacity="${c=='⬤'?.2:1}">${c}</text>`))) //adding letters
+
+  let c1,r1,c2,r2, dir, line = null, lineArr = [], point = svg.createSVGPoint()
+  let pointerEventToSvgCR = ev => {
+    tileBoard.lastTouchXY = [point.x = ev.clientX, point.y = ev.clientY]
+    point = point.matrixTransform(svg.getScreenCTM().inverse())
+    return [ Math.round((point.x-5)/10), Math.round((point.y-5)/10) ]
+  }
+  svg.onpointerdown = e=> {
+    svg.onblur();
+    [c1, r1] = [c2, r2] = pointerEventToSvgCR(e)
+    if (c1<0 || c1>=charGrid[0].length || r1<0 || r1>=charGrid.length) return
+    
+    line = $(lineGroup,`<polyline opacity=".5" stroke="white"/>`)
+    line.setAttribute('points', `${c1*10+5},${r1*10+5} ${c2*10+5},${r2*10+5}`)
+    lineArr.push(line)
+  }
+  document.onmousemove = document.ontouchmove = e=> {
+    if (!line) return
+    if (e.touches) e = e.touches[0]
+    let [c, r] = pointerEventToSvgCR(e)
+    if (c2==c && r2==r) return   
+
+    /*sticky line approximation*/
+    if (c1==c) dir = 'vertical'
+    else if (r1==r) dir = 'horizontal'
+    else if ((c1-c)==(r1-r)) dir = 'diagonal left'
+    else if ((c1-c)==(r-r1)) dir = 'diagonal right'
+    if (dir == 'vertical') c = c1
+    else if (dir == 'horizontal') r = r1
+    else if (dir == 'diagonal left') r = r1 + (c-c1)
+    else if (dir == 'diagonal right') r = r1 - (c-c1)
+    else return //*/
+
+    if (c<0 || c>=charGrid[0].length || r<0 || r>=charGrid.length) return    
+    [c2, r2] = [c, r] 
+    line.setAttribute('points', `${c1*10+5},${r1*10+5} ${c2*10+5},${r2*10+5}`)
+    if (tileBoard.checkWord(lineFromGrid(r1,c1,r2,c2,charGrid).join('')))
+      line = null //to stop drawing line, word is correct
+  }
+  document.onmouseup = document.ontouchend = svg.onblur = e=> {
+    if (!line) return
+    if (!tileBoard.checkWord(lineFromGrid(r1,c1,r2,c2,charGrid).join('')))
+      tileBoard.removeLines(1) //check
+    line = null
+  }
+}
+
+
+let phraseBoard = tasks => {//adds node with methods to gameEl
+  phraseBoard.strikePhrase = (pi, color='lightgreen') => {
+    phraseBoard.unhighlightAll()
+    model[pi].phraseEls.forEach(e=> e.style.filter = e.style.color = '') 
+    model[pi].translEl.style.filter = ''
+    model[pi].el.style.color = 'black'
+    model[pi].el.style.background = color
+    model[pi].el.style.animation = `bounce 0.5s`
+  } 
+  phraseBoard.strikeWord = (pi,wi) => {
+    model[pi].phraseEls[wi].style.color = 'yellow'
+    model[pi].phraseEls[wi].style.filter = ''
+  }
+  phraseBoard.unhighlightAll = () => {
+    model.forEach(e=> e.el.style.borderColor = `#555`)
+  }
+  phraseBoard.highlightItem = (pi) => {
+    phraseBoard.unhighlightAll()
+    model[pi].el.style.borderColor = 'lightgreen' 
+  }
+  phraseBoard.damageItem = pi => {
+    model[pi].el.style.boxShadow = 'inset 0 0 .3em .1em red'
+    model[pi].phraseEls.forEach(e=> e.style.color = '')
+    if (tasks[pi].phraseMask) 
+      model[pi].phraseEls.forEach(e=> e.style.filter = 'blur(.3em)')
+  }
+  phraseBoard.showTranslation = pi => {
+    model[pi].translEl.style.filter = ''
+  } 
+  phraseBoard.remove = ()=> {boardEl.remove(); onresize=''}
+  phraseBoard.wordCenterXY = (pi,wi)=> {
+    let {x,y,width,height} = model[pi].phraseEls[wi].getBoundingClientRect()
+    return [x+width/2, y+height/2]
+  }
+  
+  let model = [] // [{el:el, phraseEls: [el], translEl:el}]
+  let addBubble = task=> {
+    let span = ({word, mask, isTransl})=> {
+      let s = $(`<span>${('.,!?-'.includes(word) ? '' : ' ')+word}</span>`)
+      if (mask) s.style.filter = 'blur(.3em)'
+      if (isTransl) s.style.fontSize = '.8em'
+      else s.style.fontWeight = 'bold'
+
+      s.onclick = e => {//on click unblur for 1sec
+        let currentBlur = s.style.filter
+        if (currentBlur) s.style.filter = ''
+        setTimeout(() => s.style.filter=currentBlur, 1000)
+      }
+      return s 
+    }
+
+    let bubble = $(boardEl,`<div class="bubble" style="user-select:auto; 
+    background:#777; color:white; padding:.3em .5em; margin:.1em; 
+    border-radius:1.2em; line-height:0.9; border:.1em solid #555555"/>`)
+
+    model.push({
+      phraseEls: task.phraseWords.map(e=>span({word:e, mask:task.phraseMask})),
+      translEl: span({word:task.transl, mask:task.translMask, isTransl:1}),
+      el: bubble
+    })
+    bubble.append(...model.at(-1).phraseEls)
+    bubble.append(document.createElement('br'))
+    bubble.append(model.at(-1).translEl)
+  }  
+  let adaptFontSize = (startSize,unit)=> {
+    do boardEl.style.fontSize = (startSize*=.95) + unit
+    while (boardEl.scrollHeight > boardEl.clientHeight)
+  }
+
+  let boardEl = $(gameEl, `<div class="phraseboard" style="height:25cqh; 
+  display:flex; flex-wrap:wrap; justify-content:center; align-items:center; 
+  align-content:center; text-align:center; overflow:hidden;"/>`)
+
+  tasks.forEach(e=> addBubble(e))
+  adaptFontSize(4,'cqw')
+  onresize = e => adaptFontSize(4,'cqw')
+  console.log('phraseBoard items',model)
+}
+
+
+let createEmojiBurst = (x,y) => {//creates small emoji burst
+    const emojis = ["🎉", "🔥", "✨", "💥", "🎈", "🎊", "💫", "❤️"];
+    const numEmojis = 15;
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
+
+    for (let i = 0; i < numEmojis; i++) {
+        const emoji = document.createElement("div");
+        emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        gameEl.appendChild(emoji);
+
+        // Random movement
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 100
+        const xMove = Math.cos(angle) * distance;
+        const yMove = Math.sin(angle) * distance;
+
+        // Set styles
+        Object.assign(emoji.style, {
+            position: "absolute",
+            left: `${centerX}px`,
+            top: `${centerY}px`,
+            fontSize: "3rem",
+            pointerEvents: "none",
+            userSelect: "none",
+            transition: "transform 1s ease-out, opacity 1s",
+        });
+
+        // Trigger animation after a small delay
+        requestAnimationFrame(() => {
+            emoji.style.transform = `translate(${xMove}px, ${yMove}px) scale(0.5)`;
+            emoji.style.opacity = "0";
+        });
+
+        // Remove after animation
+        setTimeout(() => emoji.remove(), 1000);
+    }
+}
+
+
+let quizPopup = (message, options, callback) => {//adds modal popup to gameEl
+
+  let backdrop = $(gameEl,`<div class="backdrop" style="position:fixed; left:0; 
+  top:0; width:100%; height:100%; display:grid; place-items:center; opacity:0;
+  backdrop-filter:blur(1cqw); overflow:auto; transition:all .3s ease-in"/>`)
+  
+    let popup = $(backdrop,`<div class="popup" style="margin:5%; overflow:auto;
+    text-align:center; font-size:4cqw; background:#fff; padding:5cqw; 
+    border-radius:3cqw; box-shadow:0 0 2cqw rgba(0,0,0,0.5); max-height:98cqh;
+    display:inline-block; transition: all .2s ease-in;">${message}</div>`)
+
+  options.forEach(str=> {    
+
+    let option = $(popup,`<div class="option" style="border-radius:3cqw; 
+    padding:3cqw; background:#ddd; cursor:pointer; margin:3cqw;">${str}</div>`)
+
+    setTimeout(()=> option.onclick = ()=>{backdrop.remove();callback(str)}, 300)
+    //! remove timeout after animation implementation
+  })
+
+  backdrop.clientHeight;
+  backdrop.style.opacity = 1
+}
+
+
+//= SPACED REPETITION LOGIC ====================================================
+
+
+let nextDate = stage => {
+  let minRepititionInterval = 1000*60*10
+  let intervalMultiplier = 3
+  return Date.now() + minRepititionInterval * Math.pow(
+    intervalMultiplier,stage-1) }
+
+
+let intervalShare = (stage, nextDate) => {
+  let minRepititionInterval = 1000*60*10
+  let intervalMultiplier = 3
+  return (nextDate - Date.now()) / (minRepititionInterval * Math.pow(
+    intervalMultiplier,stage-1))*60+20 + '%'
+}
+
+
+//= UTILS ======================================================================
+
+
+let $ = (...parent_html) => {//(html)=>node Or (parent,html)=>append and return
+  //svg elements always need parent provided
+  let p = parent_html.length==2 ? parent_html[0] : document.createElement('div')
+  p.insertAdjacentHTML('beforeend','\n'+parent_html.at(-1)+'\n') // \n for DEBUG
+  let el = p.lastElementChild
+  el.style = el.getAttribute('style') // remove new lines for DEBUG
+  return el
+}
+
+
+Array.prototype.shuffle = function() {//Adds shuffle method to array
+  for (let i = this.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [this[i], this[j]] = [this[j], this[i]];
+  }
+  return this
+}
+
+
+let randEl = arr=> arr[Math.floor((Math.random()*arr.length))] //random arr elem
+
+
+let timestampToDHM = t => {//Converts timestamp duration to 0д 0ч 0мин
+  let d = Math.floor(t/(1000*60*60*24))
+  let h = Math.floor(t/(1000*60*60)) % 24
+  let m = Math.floor(t/(1000*60)) % 60
+  if (d==0 && h==0) return `${m}мин`
+  if (d==0) return `${h}ч ${m}мин`
+  return `${d}д ${h}ч`  
+}
+
+
+let synthSpeech = (str='HELLO') =>{//Says any english word
+  try {
+    let utterance = new SpeechSynthesisUtterance(str.toLowerCase())
+    speechSynthesis.speak(utterance); 
+  }catch(err){console.log(err)}
+}
+
+
+let lineFromGrid = (r1,c1,r2,c2,grid)=> {//returns array of elements
+  let dr = r2==r1 ? 0 : r2>r1 ? 1 : -1,
+      dc = c2==c1 ? 0 : c2>c1 ? 1 : -1,
+      len = Math.max(Math.abs(r2-r1), Math.abs(c2-c1)) + 1
+  return Array(len).fill(0).map((e,i) => grid[r1+i*dr][c1+i*dc])
+} 
+
+
+let localData = {//proxy localStorage methods to keep game data under gameId
+  gameId: '1-searchlines',
+  set: (key, value) => {
+    let data = {}
+    if (localStorage.getItem(localData.gameId)) {
+      data = JSON.parse(localStorage.getItem(localData.gameId))
+    }
+    data[key] = value
+    localStorage.setItem(localData.gameId, JSON.stringify(data))
+  },
+  get: key => {
+    if (localStorage.getItem(localData.gameId)) {
+      let data = JSON.parse(localStorage.getItem(localData.gameId))
+      return data[key]
+    }
+    return null
+  },
+  remove: key => {
+    if (localStorage.getItem(localData.gameId)) {
+      let data = JSON.parse(localStorage.getItem(localData.gameId))
+      delete data[key]
+      localStorage.setItem(localData.gameId, JSON.stringify(data))
+    }
+  },
+  clear: () => localStorage.removeItem(localData.gameId)
+}
+
+
+let vfxFlyCloud = (x1,y1,x2,y2,d)=> {
+  console.log('vfxFlyCloud',x1,y1,x2,y2, navigator.userAgent)
+
+  if (navigator.userAgent.includes('Firefox')) {
+    x1 -= gameEl.getBoundingClientRect().x
+    x2 -= gameEl.getBoundingClientRect().x
+  }
+  
+  let el = $(gameEl,`<div class="vfxFlyCloud" style="position:fixed; font-size:${d}cqw;container-type:inline-size; width:${d}cqw; height:${d}cqw; border-radius:100%; background:#fff; top:0; left:0; transform-origin:${x2}px ${y2}px; transform:translate(${x1}px, ${y1}px); transition: rotate 9s linear, transform .5s ease-out; scale:1;"/>`)
+
+  el.style.boxShadow = 
+  `rgb(255, 255, 255) -.5em .1em 0em, rgb(255, 255, 255) -.8em -1em 0em, rgb(255, 255, 255) -.1em -.7em 0em, rgb(255, 255, 255) -1em -.3em 0em`
+
+  el.clientHeight;
+  el.style.rotate = (Math.random()-.5)*1000+'deg'
+  el.style.transform = `translate(${x2}px, ${y2}px)`
+  setTimeout(() => el.remove(), 500);
+
+}
+document.onclick = e=> vfxFlyCloud(e.clientX,e.clientY,50,50,5)
+
+//656</script>
 <script> // DICT
 
 globDict = {
@@ -721,27 +824,6 @@ for (let key in globDict) {
   }))
 }
 
-let loadLocalDataToDict = () => {
-  for (let name in globDict) {
-    if (localData.get(name)) {
-      let localDict = localData.get(name)
-      if (localDict.length != globDict[name].length) {
-        alert(`localData length inconsistency ${name} ${localDict.length} 
-          ${globDict[name].length}`)
-      } else {
-        globDict[name] = globDict[name].map((e,i) => ({
-          phrase: e.phrase,
-          transl: e.transl,
-          stage: localDict[i].stage,
-          nextDate: localDict[i].nextDate,
-          successScore: localDict[i].successScore,
-          errorScore: localDict[i].errorScore,
-          damaged: localDict[i].damaged
-        }))
-      }
-    }
-  }
-}
 </script>
 <script>//CRAZY LOG CONSOLE
 document.body.insertAdjacentHTML('afterbegin',
@@ -777,5 +859,6 @@ let service = ()=> {
   showPrompt()
 }
 let printhtml=()=>window.open().document.write('<xmp>'+document.body.innerHTML)
+document.oncontextmenu = e=> {e.preventDefault();location.reload()}
 </script>
 </html>
