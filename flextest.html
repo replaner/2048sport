@@ -745,7 +745,7 @@ let localData = {//proxy localStorage methods to keep game data under gameId
 let vfxFlyCloud = (x1,y1,x2,y2,d)=> {
   console.log('vfxFlyCloud',x1,y1,x2,y2, navigator.userAgent)
 
-  if (navigator.userAgent.includes('Firefox')) {
+  if (navigator.userAgent.includes('Firefox') && !navigator.userAgent.includes('Android')) {
     x1 -= gameEl.getBoundingClientRect().x
     x2 -= gameEl.getBoundingClientRect().x
   }
