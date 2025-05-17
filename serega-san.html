@@ -274,7 +274,7 @@ let gameRound = (dictName,round=1)=> {//inits and manages game round
       setTimeout(()=>shortenLines(x+width/2, y+height/2),1000) 
 
       let newProgressData = Array(Math.max(9, Math.max(...globDict[dictName].map(e=>e.stage)))).fill(0).map((e,i)=>({
-        str: i==5 ? '🔒' : '',
+        str: i==3 ? '🔒' : '',
         big: i <= Math.min(...globDict[dictName].map(e=>e.stage)) ? 1 : 0,
         color: i <= Math.max(...globDict[dictName].map(e=>e.stage)) ? '#'+colors[i] : '' 
       }))
@@ -415,7 +415,7 @@ let gameSeries = ()=> {//adds bubble boxes with play round buttons to gameEl
     let dict = globDict[dictName]
 
     let progressData =  Array(Math.max(9, Math.max(...dict.map(e=>e.stage)))).fill(0).map((e,i)=>({
-      str: i==5 ? '🔒' : '',
+      str: i==3 ? '🔒' : '',
       big: i <= Math.min(...dict.map(e=>e.stage)) ? 1 : 0,
       color: i <= Math.max(...dict.map(e=>e.stage)) ? '#'+colors[i] : '' }))
 
@@ -454,7 +454,7 @@ let gameSeries = ()=> {//adds bubble boxes with play round buttons to gameEl
     
     for (let i=0; i<Math.max(9, Math.max(...dict.map(e=>e.stage))); i++) 
       progressbar.append(progressEl({
-        str: i==5 ? '🔒' : '',
+        str: i==3 ? '🔒' : '',
         big: i <= Math.min(...dict.map(e=>e.stage)) ? 1 : 0,
         color: i <= Math.max(...dict.map(e=>e.stage)) ? '#'+colors[i] : '' }))
 
@@ -487,8 +487,8 @@ let gameSeries = ()=> {//adds bubble boxes with play round buttons to gameEl
   }
   localData.set('opengames', Math.max(
     localData.get('opengames') || 1,
-    Math.min(...globDict['words'].map(e=>e.stage)) > 4 ? 2 : 0, 
-    Math.min(...globDict['phrases'].map(e=>e.stage)) > 4 ? 3 : 0 ) )
+    Math.min(...globDict['words'].map(e=>e.stage)) > 3 ? 2 : 0, 
+    Math.min(...globDict['phrases'].map(e=>e.stage)) > 3 ? 3 : 0 ) )
     
   addBubblebox('WORDS','words',localData.get('opengames')>0)
   addBubblebox('PHRASES','phrases',localData.get('opengames')>1)
