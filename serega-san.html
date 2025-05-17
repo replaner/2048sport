@@ -274,7 +274,7 @@ let gameRound = (dictName,round=1)=> {//inits and manages game round
       setTimeout(()=>shortenLines(x+width/2, y+height/2),1000) 
 
       let newProgressData = Array(Math.max(9, Math.max(...globDict[dictName].map(e=>e.stage)))).fill(0).map((e,i)=>({
-        str: i==3 ? '🔒' : '',
+        str: i==5 ? '🔒' : '',
         big: i <= Math.min(...globDict[dictName].map(e=>e.stage)) ? 1 : 0,
         color: i <= Math.max(...globDict[dictName].map(e=>e.stage)) ? '#'+colors[i] : '' 
       }))
@@ -415,7 +415,7 @@ let gameSeries = ()=> {//adds bubble boxes with play round buttons to gameEl
     let dict = globDict[dictName]
 
     let progressData =  Array(Math.max(9, Math.max(...dict.map(e=>e.stage)))).fill(0).map((e,i)=>({
-      str: i==3 ? '🔒' : '',
+      str: i==5 ? '🔒' : '',
       big: i <= Math.min(...dict.map(e=>e.stage)) ? 1 : 0,
       color: i <= Math.max(...dict.map(e=>e.stage)) ? '#'+colors[i] : '' }))
 
@@ -454,7 +454,7 @@ let gameSeries = ()=> {//adds bubble boxes with play round buttons to gameEl
     
     for (let i=0; i<Math.max(9, Math.max(...dict.map(e=>e.stage))); i++) 
       progressbar.append(progressEl({
-        str: i==3 ? '🔒' : '',
+        str: i==5 ? '🔒' : '',
         big: i <= Math.min(...dict.map(e=>e.stage)) ? 1 : 0,
         color: i <= Math.max(...dict.map(e=>e.stage)) ? '#'+colors[i] : '' }))
 
@@ -1170,40 +1170,4 @@ globDict.sentences.shuffle() //debug
 </script>
 
 
-<script>//CRAZY LOG CONSOLE
-document.body.insertAdjacentHTML('afterbegin',
-  `<div id="service" style="display:none; position:fixed; background:#ffffffaa; z-index:999; right:0; bottom:0" onclick="service()">⚙️</div>`)
-document.ondblclick = e=> document.querySelector('#service').style.display=''
-let service = ()=> {
-  let commands = [
-    `window.open().document.write('<xmp>'+document.body.innerHTML)`,
-    `localStorage.service=''`
-  ]
-  if (localStorage.service) commands = JSON.parse(localStorage.service).commands
-  let showPrompt = cmdInd=> {
-    let p=prompt(commands.map((e,i)=>i+'♦'+e).join('\n'),commands[cmdInd] || '')
-    if (commands[p]) showPrompt(p)
-    else if (p.charAt(0)=='-' && commands[-p]) {
-      commands.splice(-p,1)
-      localStorage.service = JSON.stringify({commands:commands})
-      showPrompt()
-    } else if (p==''){
-      return
-    } else {
-      try {
-        if(!commands.includes(p)) {
-          commands.push(p)
-          localStorage.service = JSON.stringify({commands:commands})
-        }
-        eval(p) 
-      } catch(err){
-        eval(prompt(err,p))
-      }
-    }
-  }
-  showPrompt()
-}
-let printhtml=()=>window.open().document.write('<xmp>'+document.body.innerHTML)
-document.oncontextmenu = e=> {e.preventDefault();location.reload()}
-</script>
 </html>
