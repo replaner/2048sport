@@ -237,7 +237,7 @@ var generateRoundTask = dict => {//converst dict to model
 
 let gameRound = (dictName,round=1)=> {//inits and manages game round
 
-  let {charGrid, roundDict} = generateCharGrid(4,11,globDict[dictName],99)
+  let {charGrid, roundDict} = generateCharGrid(6,8,globDict[dictName],99)
   let roundTask = generateRoundTask(roundDict)
   console.log('roundTask', roundTask);
   
